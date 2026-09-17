@@ -5,7 +5,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-
 # Load environment variables before importing
 # SentenceTransformers / Hugging Face libraries.
 load_dotenv()
@@ -19,23 +18,19 @@ from sentence_transformers import SentenceTransformer
 
 from census_sources import SOURCE_BY_FILENAME
 
-
 BASE_DIR = Path(__file__).resolve().parent
 
 DATA_DIR = BASE_DIR / "data"
 
 DEFAULT_INDEX_DIR = BASE_DIR / "index"
 
-DEFAULT_MODEL_PATH = (
-    BASE_DIR
-    / "models"
-    / "bge-small-en-v1.5"
-)
+DEFAULT_MODEL_PATH = BASE_DIR / "models" / "bge-small-en-v1.5"
 
 
 # ---------------------------------------------------------
 # GENERAL TEXT CLEANING
 # ---------------------------------------------------------
+
 
 def clean_text(text: str) -> str:
     """
@@ -72,13 +67,9 @@ def clean_text(text: str) -> str:
         ).strip()
 
         if line:
-            lines.append(
-                line
-            )
+            lines.append(line)
 
-    return "\n".join(
-        lines
-    )
+    return "\n".join(lines)
 
 
 def clean_cell(value) -> str:
@@ -100,6 +91,7 @@ def clean_cell(value) -> str:
 # TEXT CHUNKING
 # ---------------------------------------------------------
 
+
 def chunk_text(
     text: str,
     chunk_size: int = 170,
@@ -112,14 +104,10 @@ def chunk_text(
     if not text:
         return []
 
-    words = (
-        text
-        .replace(
-            "\n",
-            " \n ",
-        )
-        .split()
-    )
+    words = text.replace(
+        "\n",
+        " \n ",
+    ).split()
 
     if not words:
         return []
@@ -135,9 +123,7 @@ def chunk_text(
             len(words),
         )
 
-        chunk = " ".join(
-            words[start:end]
-        )
+        chunk = " ".join(words[start:end])
 
         chunk = re.sub(
             r"\s*\n\s*",
@@ -146,9 +132,7 @@ def chunk_text(
         ).strip()
 
         if chunk:
-            chunks.append(
-                chunk
-            )
+            chunks.append(chunk)
 
         if end >= len(words):
             break
@@ -165,6 +149,7 @@ def chunk_text(
 # CENSUS SOURCE METADATA
 # ---------------------------------------------------------
 
+
 def source_metadata(
     pdf_path: Path,
 ):
@@ -172,49 +157,35 @@ def source_metadata(
     Get volume metadata from census_sources.py.
     """
 
-    configured = (
-        SOURCE_BY_FILENAME.get(
-            pdf_path.name
-        )
-    )
+    configured = SOURCE_BY_FILENAME.get(pdf_path.name)
 
     if configured:
 
         return {
-            "volume":
-                configured[
-                    "volume"
-                ],
-
-            "title":
-                configured[
-                    "title"
-                ],
+            "volume": configured["volume"],
+            "title": configured["title"],
         }
 
     return {
-        "volume":
-            "Other",
-
-        "title":
-            (
-                pdf_path.stem
-                .replace(
-                    "-",
-                    " ",
-                )
-                .replace(
-                    "_",
-                    " ",
-                )
-                .title()
-            ),
+        "volume": "Other",
+        "title": (
+            pdf_path.stem.replace(
+                "-",
+                " ",
+            )
+            .replace(
+                "_",
+                " ",
+            )
+            .title()
+        ),
     }
 
 
 # ---------------------------------------------------------
 # TABLE HELPERS
 # ---------------------------------------------------------
+
 
 def normalize_headers(
     headers,
@@ -233,13 +204,8 @@ def normalize_headers(
     result = []
     seen = {}
 
-    for index, value in enumerate(
-        headers
-    ):
-        name = (
-            clean_cell(value)
-            or f"Column {index + 1}"
-        )
+    for index, value in enumerate(headers):
+        name = clean_cell(value) or f"Column {index + 1}"
 
         count = (
             seen.get(
@@ -252,13 +218,9 @@ def normalize_headers(
         seen[name] = count
 
         if count == 1:
-            result.append(
-                name
-            )
+            result.append(name)
         else:
-            result.append(
-                f"{name} {count}"
-            )
+            result.append(f"{name} {count}")
 
     return result
 
@@ -274,24 +236,13 @@ def meaningful_header_names(
     if not names:
         return False
 
-    cleaned = [
-        clean_cell(
-            value
-        )
-        for value in names
-    ]
+    cleaned = [clean_cell(value) for value in names]
 
-    non_empty = sum(
-        bool(value)
-        for value in cleaned
-    )
+    non_empty = sum(bool(value) for value in cleaned)
 
-    return (
-        non_empty
-        >= max(
-            1,
-            len(cleaned) // 2,
-        )
+    return non_empty >= max(
+        1,
+        len(cleaned) // 2,
     )
 
 
@@ -319,42 +270,25 @@ def rows_from_table_data(
         if not row:
             continue
 
-        raw_rows.append(
-            [
-                clean_cell(
-                    value
-                )
-                for value in row
-            ]
-        )
+        raw_rows.append([clean_cell(value) for value in row])
 
     if not raw_rows:
         return [], []
 
-    if meaningful_header_names(
-        header_names
-    ):
-        headers = normalize_headers(
-            header_names
-        )
+    if meaningful_header_names(header_names):
+        headers = normalize_headers(header_names)
 
         body = raw_rows
 
         # Sometimes extract() also includes
         # the same header as its first row.
-        first_row = normalize_headers(
-            raw_rows[0][
-                :len(headers)
-            ]
-        )
+        first_row = normalize_headers(raw_rows[0][: len(headers)])
 
         if first_row == headers:
             body = raw_rows[1:]
 
     else:
-        headers = normalize_headers(
-            raw_rows[0]
-        )
+        headers = normalize_headers(raw_rows[0])
 
         body = raw_rows[1:]
 
@@ -362,29 +296,21 @@ def rows_from_table_data(
 
     for raw in body:
 
-        values = (
-            raw
-            + [""] * max(
-                0,
-                len(headers) - len(raw),
-            )
+        values = raw + [""] * max(
+            0,
+            len(headers) - len(raw),
         )
 
         row = {}
 
-        for index, header in enumerate(
-            headers
-        ):
-            row[header] = (
-                values[index]
-                if index < len(values)
-                else ""
-            )
+        for index, header in enumerate(headers):
+            row[header] = values[index] if index < len(values) else ""
 
         # Ignore completely empty rows.
         if not any(
             value
-            and value not in {
+            and value
+            not in {
                 "-",
                 "—",
                 "–",
@@ -395,33 +321,14 @@ def rows_from_table_data(
 
         # Ignore repeated table headings
         # appearing halfway through a long table.
-        normalized_values = [
-            clean_cell(
-                value
-            ).lower()
-            for value in row.values()
-        ]
+        normalized_values = [clean_cell(value).lower() for value in row.values()]
 
-        normalized_headers = [
-            clean_cell(
-                header
-            ).lower()
-            for header in headers
-        ]
+        normalized_headers = [clean_cell(header).lower() for header in headers]
 
-        if (
-            normalized_values[
-                :len(
-                    normalized_headers
-                )
-            ]
-            == normalized_headers
-        ):
+        if normalized_values[: len(normalized_headers)] == normalized_headers:
             continue
 
-        rows.append(
-            row
-        )
+        rows.append(row)
 
     return (
         headers,
@@ -461,31 +368,17 @@ def find_table_title(
         return ""
 
     try:
-        bbox = fitz.Rect(
-            table_bbox
-        )
+        bbox = fitz.Rect(table_bbox)
 
         candidates = []
 
-        for block in page.get_text(
-            "blocks"
-        ):
-            block_rect = fitz.Rect(
-                block[:4]
-            )
+        for block in page.get_text("blocks"):
+            block_rect = fitz.Rect(block[:4])
 
             # Only inspect nearby blocks above
             # the table.
-            if (
-                block_rect.y1
-                <= bbox.y0 + 3
-                and
-                bbox.y0 - block_rect.y1
-                <= 140
-            ):
-                text = clean_text(
-                    block[4]
-                )
+            if block_rect.y1 <= bbox.y0 + 3 and bbox.y0 - block_rect.y1 <= 140:
+                text = clean_text(block[4])
 
                 if text:
                     candidates.append(
@@ -500,27 +393,21 @@ def find_table_title(
 
         candidate_text = sorted(
             candidates,
-            key=lambda item:
-                item[0],
-        )[-1][1]
+            key=lambda item: item[0],
+        )[
+            -1
+        ][1]
 
-        lines = (
-            candidate_text
-            .splitlines()
-        )
+        lines = candidate_text.splitlines()
 
         # Prefer an explicit "Table X..." line.
-        for index, line in enumerate(
-            lines
-        ):
+        for index, line in enumerate(lines):
             if re.match(
                 r"^Table\s+",
                 line,
                 flags=re.IGNORECASE,
             ):
-                return " ".join(
-                    lines[index:]
-                )
+                return " ".join(lines[index:])
 
         # Fallback to nearest preceding line.
         return lines[-1]
@@ -543,41 +430,25 @@ def table_row_to_search_text(
     parts = []
 
     if table_title:
-        parts.append(
-            table_title.rstrip(
-                "."
-            )
-        )
+        parts.append(table_title.rstrip("."))
 
     for key, value in row.items():
 
-        value = clean_cell(
-            value
-        )
+        value = clean_cell(value)
 
-        if (
-            not value
-            or value in {
-                "-",
-                "—",
-                "–",
-            }
-        ):
+        if not value or value in {
+            "-",
+            "—",
+            "–",
+        }:
             continue
 
-        parts.append(
-            f"{key}: {value}"
-        )
+        parts.append(f"{key}: {value}")
 
     if not parts:
         return ""
 
-    return (
-        ". ".join(
-            parts
-        ).strip()
-        + "."
-    )
+    return ". ".join(parts).strip() + "."
 
 
 def page_tables(
@@ -588,9 +459,7 @@ def page_tables(
     """
 
     try:
-        finder = (
-            page.find_tables()
-        )
+        finder = page.find_tables()
 
         return list(
             getattr(
@@ -603,10 +472,7 @@ def page_tables(
 
     except Exception as exc:
 
-        print(
-            "Warning: could not "
-            f"extract page table: {exc}"
-        )
+        print("Warning: could not " f"extract page table: {exc}")
 
         return []
 
@@ -614,6 +480,7 @@ def page_tables(
 # ---------------------------------------------------------
 # REMOVE TABLE CONTENT FROM NORMAL PROSE
 # ---------------------------------------------------------
+
 
 def rects_intersect(
     a,
@@ -623,15 +490,7 @@ def rects_intersect(
     Return True if two PyMuPDF rectangles overlap.
     """
 
-    return not (
-        a.x1 <= b.x0
-        or
-        a.x0 >= b.x1
-        or
-        a.y1 <= b.y0
-        or
-        a.y0 >= b.y1
-    )
+    return not (a.x1 <= b.x0 or a.x0 >= b.x1 or a.y1 <= b.y0 or a.y0 >= b.y1)
 
 
 def prose_outside_tables(
@@ -650,47 +509,32 @@ def prose_outside_tables(
 
     pieces = []
 
-    table_rects = [
-        fitz.Rect(
-            bbox
-        )
-        for bbox in table_bboxes
-    ]
+    table_rects = [fitz.Rect(bbox) for bbox in table_bboxes]
 
-    for block in page.get_text(
-        "blocks"
-    ):
-        block_rect = fitz.Rect(
-            block[:4]
-        )
+    for block in page.get_text("blocks"):
+        block_rect = fitz.Rect(block[:4])
 
         if any(
             rects_intersect(
                 block_rect,
                 table_rect,
             )
-            for table_rect
-            in table_rects
+            for table_rect in table_rects
         ):
             continue
 
-        text = clean_text(
-            block[4]
-        )
+        text = clean_text(block[4])
 
         if text:
-            pieces.append(
-                text
-            )
+            pieces.append(text)
 
-    return "\n".join(
-        pieces
-    )
+    return "\n".join(pieces)
 
 
 # ---------------------------------------------------------
 # PAGE / PDF EXTRACTION
 # ---------------------------------------------------------
+
 
 def extract_chunks(
     pdf_path: Path,
@@ -705,13 +549,9 @@ def extract_chunks(
     - normal prose chunks
     """
 
-    document = fitz.open(
-        pdf_path
-    )
+    document = fitz.open(pdf_path)
 
-    source = source_metadata(
-        pdf_path
-    )
+    source = source_metadata(pdf_path)
 
     chunks = []
 
@@ -719,24 +559,16 @@ def extract_chunks(
 
     print()
 
-    print(
-        f"Extracting Volume "
-        f"{source['volume']} — "
-        f"{source['title']}"
-    )
+    print(f"Extracting Volume " f"{source['volume']} — " f"{source['title']}")
 
-    print(
-        f"Pages: {len(document)}"
-    )
+    print(f"Pages: {len(document)}")
 
     for page_number, page in enumerate(
         document,
         start=1,
     ):
 
-        tables = page_tables(
-            page
-        )
+        tables = page_tables(page)
 
         table_bboxes = []
 
@@ -756,14 +588,10 @@ def extract_chunks(
             )
 
             if bbox:
-                table_bboxes.append(
-                    bbox
-                )
+                table_bboxes.append(bbox)
 
             try:
-                table_data = (
-                    table.extract()
-                )
+                table_data = table.extract()
 
             except Exception as exc:
 
@@ -808,24 +636,15 @@ def extract_chunks(
             )
 
             if not table_title:
-                table_title = (
-                    f"Table on page "
-                    f"{page_number}"
-                )
+                table_title = f"Table on page " f"{page_number}"
 
-            table_number = (
-                table_number_from_title(
-                    table_title
-                )
-            )
+            table_number = table_number_from_title(table_title)
 
             for row in rows:
 
-                search_text = (
-                    table_row_to_search_text(
-                        table_title,
-                        row,
-                    )
+                search_text = table_row_to_search_text(
+                    table_title,
+                    row,
                 )
 
                 if not search_text:
@@ -833,49 +652,20 @@ def extract_chunks(
 
                 chunks.append(
                     {
-                        "chunk_id":
-                            chunk_id,
-
-                        "type":
-                            "table",
-
-                        "year":
-                            2019,
-
-                        "volume":
-                            source[
-                                "volume"
-                            ],
-
-                        "volume_title":
-                            source[
-                                "title"
-                            ],
-
-                        "page":
-                            page_number,
-
-                        "source":
-                            pdf_path.name,
-
-                        "table_index":
-                            table_index,
-
-                        "table_number":
-                            table_number,
-
-                        "table_title":
-                            table_title,
-
-                        "columns":
-                            columns,
-
-                        "row":
-                            row,
-
+                        "chunk_id": chunk_id,
+                        "type": "table",
+                        "year": 2019,
+                        "volume": source["volume"],
+                        "volume_title": source["title"],
+                        "page": page_number,
+                        "source": pdf_path.name,
+                        "table_index": table_index,
+                        "table_number": table_number,
+                        "table_title": table_title,
+                        "columns": columns,
+                        "row": row,
                         # BGE representation.
-                        "text":
-                            search_text,
+                        "text": search_text,
                     }
                 )
 
@@ -900,33 +690,14 @@ def extract_chunks(
 
             chunks.append(
                 {
-                    "chunk_id":
-                        chunk_id,
-
-                    "type":
-                        "text",
-
-                    "year":
-                        2019,
-
-                    "volume":
-                        source[
-                            "volume"
-                        ],
-
-                    "volume_title":
-                        source[
-                            "title"
-                        ],
-
-                    "page":
-                        page_number,
-
-                    "source":
-                        pdf_path.name,
-
-                    "text":
-                        text_chunk,
+                    "chunk_id": chunk_id,
+                    "type": "text",
+                    "year": 2019,
+                    "volume": source["volume"],
+                    "volume_title": source["title"],
+                    "page": page_number,
+                    "source": pdf_path.name,
+                    "text": text_chunk,
                 }
             )
 
@@ -934,37 +705,15 @@ def extract_chunks(
 
     document.close()
 
-    table_count = sum(
-        chunk.get(
-            "type"
-        )
-        == "table"
-        for chunk in chunks
-    )
+    table_count = sum(chunk.get("type") == "table" for chunk in chunks)
 
-    text_count = sum(
-        chunk.get(
-            "type"
-        )
-        == "text"
-        for chunk in chunks
-    )
+    text_count = sum(chunk.get("type") == "text" for chunk in chunks)
 
-    print(
-        f"Created "
-        f"{len(chunks):,} "
-        f"searchable records."
-    )
+    print(f"Created " f"{len(chunks):,} " f"searchable records.")
 
-    print(
-        f"  Text chunks: "
-        f"{text_count:,}"
-    )
+    print(f"  Text chunks: " f"{text_count:,}")
 
-    print(
-        f"  Table rows: "
-        f"{table_count:,}"
-    )
+    print(f"  Table rows: " f"{table_count:,}")
 
     return chunks
 
@@ -972,6 +721,7 @@ def extract_chunks(
 # ---------------------------------------------------------
 # FILE DISCOVERY
 # ---------------------------------------------------------
+
 
 def discover_pdfs(
     explicit_paths,
@@ -984,45 +734,24 @@ def discover_pdfs(
 
     if explicit_paths:
 
-        paths = [
-            Path(
-                path
-            ).resolve()
-            for path in explicit_paths
-        ]
+        paths = [Path(path).resolve() for path in explicit_paths]
 
     else:
 
-        paths = sorted(
-            DATA_DIR.glob(
-                "*.pdf"
-            )
-        )
+        paths = sorted(DATA_DIR.glob("*.pdf"))
 
-    missing = [
-        path
-        for path in paths
-        if not path.exists()
-    ]
+    missing = [path for path in paths if not path.exists()]
 
     if missing:
 
-        missing_text = "\n".join(
-            f"  - {path}"
-            for path in missing
-        )
+        missing_text = "\n".join(f"  - {path}" for path in missing)
 
-        raise SystemExit(
-            "PDF file(s) not found:\n"
-            f"{missing_text}"
-        )
+        raise SystemExit("PDF file(s) not found:\n" f"{missing_text}")
 
     if not paths:
 
         raise SystemExit(
-            "No census PDFs found.\n\n"
-            "Run:\n\n"
-            "    python download_census.py\n"
+            "No census PDFs found.\n\n" "Run:\n\n" "    python download_census.py\n"
         )
 
     return paths
@@ -1031,6 +760,7 @@ def discover_pdfs(
 # ---------------------------------------------------------
 # LOCAL EMBEDDING MODEL
 # ---------------------------------------------------------
+
 
 def validate_model_path(
     model_path: Path,
@@ -1052,10 +782,7 @@ def validate_model_path(
 
     if not model_path.is_dir():
 
-        raise SystemExit(
-            "Model path is not a "
-            f"directory: {model_path}"
-        )
+        raise SystemExit("Model path is not a " f"directory: {model_path}")
 
 
 def load_local_model(
@@ -1065,25 +792,16 @@ def load_local_model(
     Load BGE without contacting Hugging Face.
     """
 
-    validate_model_path(
-        model_path
-    )
+    validate_model_path(model_path)
 
     print()
 
-    print(
-        "Loading local "
-        "embedding model:"
-    )
+    print("Loading local " "embedding model:")
 
-    print(
-        f"    {model_path}"
-    )
+    print(f"    {model_path}")
 
     return SentenceTransformer(
-        str(
-            model_path
-        ),
+        str(model_path),
         local_files_only=True,
     )
 
@@ -1091,6 +809,7 @@ def load_local_model(
 # ---------------------------------------------------------
 # EMBEDDINGS + FAISS
 # ---------------------------------------------------------
+
 
 def create_embeddings(
     model,
@@ -1102,33 +821,18 @@ def create_embeddings(
     representations.
     """
 
-    documents = [
-        chunk["text"]
-        for chunk in chunks
-    ]
+    documents = [chunk["text"] for chunk in chunks]
 
     print()
 
-    print(
-        f"Embedding "
-        f"{len(documents):,} "
-        f"census records..."
-    )
+    print(f"Embedding " f"{len(documents):,} " f"census records...")
 
     embeddings = model.encode(
         documents,
-
-        batch_size=
-            batch_size,
-
-        show_progress_bar=
-            True,
-
-        normalize_embeddings=
-            True,
-
-        convert_to_numpy=
-            True,
+        batch_size=batch_size,
+        show_progress_bar=True,
+        normalize_embeddings=True,
+        convert_to_numpy=True,
     )
 
     return np.asarray(
@@ -1145,19 +849,11 @@ def create_faiss_index(
     equivalent to cosine similarity.
     """
 
-    dimensions = (
-        embeddings.shape[1]
-    )
+    dimensions = embeddings.shape[1]
 
-    index = (
-        faiss.IndexFlatIP(
-            dimensions
-        )
-    )
+    index = faiss.IndexFlatIP(dimensions)
 
-    index.add(
-        embeddings
-    )
+    index.add(embeddings)
 
     return index
 
@@ -1165,6 +861,7 @@ def create_faiss_index(
 # ---------------------------------------------------------
 # SAVE INDEX
 # ---------------------------------------------------------
+
 
 def save_index(
     index,
@@ -1186,26 +883,15 @@ def save_index(
         exist_ok=True,
     )
 
-    faiss_path = (
-        index_dir
-        / "census.faiss"
-    )
+    faiss_path = index_dir / "census.faiss"
 
-    chunks_path = (
-        index_dir
-        / "chunks.json"
-    )
+    chunks_path = index_dir / "chunks.json"
 
-    metadata_path = (
-        index_dir
-        / "metadata.json"
-    )
+    metadata_path = index_dir / "metadata.json"
 
     faiss.write_index(
         index,
-        str(
-            faiss_path
-        ),
+        str(faiss_path),
     )
 
     chunks_path.write_text(
@@ -1219,93 +905,40 @@ def save_index(
     indexed_volumes = sorted(
         {
             (
-                chunk[
-                    "volume"
-                ],
-                chunk[
-                    "volume_title"
-                ],
+                chunk["volume"],
+                chunk["volume_title"],
             )
             for chunk in chunks
         },
-        key=lambda item:
-            item[0],
+        key=lambda item: item[0],
     )
 
-    text_chunks = sum(
-        chunk.get(
-            "type"
-        )
-        == "text"
-        for chunk in chunks
-    )
+    text_chunks = sum(chunk.get("type") == "text" for chunk in chunks)
 
-    table_rows = sum(
-        chunk.get(
-            "type"
-        )
-        == "table"
-        for chunk in chunks
-    )
+    table_rows = sum(chunk.get("type") == "table" for chunk in chunks)
 
     metadata = {
-        "year":
-            2019,
-
-        "model":
-            "BAAI/bge-small-en-v1.5",
-
-        "model_path":
-            str(
-                model_path
-            ),
-
-        "documents":
-            len(
-                pdf_paths
-            ),
-
-        "chunks":
-            len(
-                chunks
-            ),
-
-        "text_chunks":
-            text_chunks,
-
-        "table_rows":
-            table_rows,
-
-        "embedding_dimensions":
-            int(
-                embeddings.shape[1]
-            ),
-
-        "chunk_size_words":
-            chunk_size,
-
-        "overlap_words":
-            overlap,
-
+        "year": 2019,
+        "model": "BAAI/bge-small-en-v1.5",
+        "model_path": str(model_path),
+        "documents": len(pdf_paths),
+        "chunks": len(chunks),
+        "text_chunks": text_chunks,
+        "table_rows": table_rows,
+        "embedding_dimensions": int(embeddings.shape[1]),
+        "chunk_size_words": chunk_size,
+        "overlap_words": overlap,
         "volumes": [
             {
-                "volume":
-                    volume,
-
-                "title":
-                    title,
+                "volume": volume,
+                "title": title,
             }
             for (
                 volume,
                 title,
-            )
-            in indexed_volumes
+            ) in indexed_volumes
         ],
-
-        "sources": [
-            path.name
-            for path in pdf_paths
-        ],
+        "sources": [path.name for path in pdf_paths],
     }
 
     metadata_path.write_text(
@@ -1328,6 +961,7 @@ def save_index(
 # MAIN
 # ---------------------------------------------------------
 
+
 def main():
 
     parser = argparse.ArgumentParser(
@@ -1342,24 +976,20 @@ def main():
         "pdfs",
         nargs="*",
         help=(
-            "Optional PDF paths. "
-            "If omitted, all PDFs "
-            "inside data/ are indexed."
+            "Optional PDF paths. " "If omitted, all PDFs " "inside data/ are indexed."
         ),
     )
 
     parser.add_argument(
         "--index-dir",
         type=Path,
-        default=
-            DEFAULT_INDEX_DIR,
+        default=DEFAULT_INDEX_DIR,
     )
 
     parser.add_argument(
         "--model-path",
         type=Path,
-        default=
-            DEFAULT_MODEL_PATH,
+        default=DEFAULT_MODEL_PATH,
     )
 
     parser.add_argument(
@@ -1380,75 +1010,37 @@ def main():
         default=32,
     )
 
-    args = (
-        parser.parse_args()
-    )
+    args = parser.parse_args()
 
     if args.chunk_size <= 0:
-        raise SystemExit(
-            "--chunk-size must "
-            "be greater than zero."
-        )
+        raise SystemExit("--chunk-size must " "be greater than zero.")
 
     if args.overlap < 0:
-        raise SystemExit(
-            "--overlap cannot "
-            "be negative."
-        )
+        raise SystemExit("--overlap cannot " "be negative.")
 
-    if (
-        args.overlap
-        >= args.chunk_size
-    ):
-        raise SystemExit(
-            "--overlap must be "
-            "smaller than "
-            "--chunk-size."
-        )
+    if args.overlap >= args.chunk_size:
+        raise SystemExit("--overlap must be " "smaller than " "--chunk-size.")
 
     if args.batch_size <= 0:
-        raise SystemExit(
-            "--batch-size must "
-            "be greater than zero."
-        )
+        raise SystemExit("--batch-size must " "be greater than zero.")
 
-    model_path = (
-        args.model_path
-        .expanduser()
-        .resolve()
-    )
+    model_path = args.model_path.expanduser().resolve()
 
-    validate_model_path(
-        model_path
-    )
+    validate_model_path(model_path)
 
-    pdf_paths = (
-        discover_pdfs(
-            args.pdfs
-        )
-    )
+    pdf_paths = discover_pdfs(args.pdfs)
 
     print()
-    print(
-        "Kenya Census Semantic Index"
-    )
+    print("Kenya Census Semantic Index")
 
-    print(
-        "============================"
-    )
+    print("============================")
 
     print()
 
-    print(
-        f"PDFs found: "
-        f"{len(pdf_paths)}"
-    )
+    print(f"PDFs found: " f"{len(pdf_paths)}")
 
     for pdf_path in pdf_paths:
-        print(
-            f"  - "
-            f"{pdf_path.name}"
-        )
+        print(f"  - " f"{pdf_path.name}")
 
     all_chunks = []
 
@@ -1457,187 +1049,90 @@ def main():
     for pdf_path in pdf_paths:
 
         chunks = extract_chunks(
-            pdf_path=
-                pdf_path,
-
-            chunk_size=
-                args.chunk_size,
-
-            overlap=
-                args.overlap,
-
-            start_id=
-                next_chunk_id,
+            pdf_path=pdf_path,
+            chunk_size=args.chunk_size,
+            overlap=args.overlap,
+            start_id=next_chunk_id,
         )
 
-        all_chunks.extend(
-            chunks
-        )
+        all_chunks.extend(chunks)
 
-        next_chunk_id += (
-            len(chunks)
-        )
+        next_chunk_id += len(chunks)
 
     if not all_chunks:
 
         raise SystemExit(
-            "No searchable content "
-            "could be extracted from "
-            "the census PDFs."
+            "No searchable content " "could be extracted from " "the census PDFs."
         )
 
-    text_count = sum(
-        chunk.get(
-            "type"
-        )
-        == "text"
-        for chunk in all_chunks
-    )
+    text_count = sum(chunk.get("type") == "text" for chunk in all_chunks)
 
-    table_count = sum(
-        chunk.get(
-            "type"
-        )
-        == "table"
-        for chunk in all_chunks
-    )
+    table_count = sum(chunk.get("type") == "table" for chunk in all_chunks)
 
     print()
-    print(
-        "Extraction complete."
-    )
+    print("Extraction complete.")
 
-    print(
-        f"Total records: "
-        f"{len(all_chunks):,}"
-    )
+    print(f"Total records: " f"{len(all_chunks):,}")
 
-    print(
-        f"Text chunks: "
-        f"{text_count:,}"
-    )
+    print(f"Text chunks: " f"{text_count:,}")
 
-    print(
-        f"Table rows: "
-        f"{table_count:,}"
-    )
+    print(f"Table rows: " f"{table_count:,}")
 
-    model = load_local_model(
-        model_path
-    )
+    model = load_local_model(model_path)
 
-    embeddings = (
-        create_embeddings(
-            model=
-                model,
-
-            chunks=
-                all_chunks,
-
-            batch_size=
-                args.batch_size,
-        )
+    embeddings = create_embeddings(
+        model=model,
+        chunks=all_chunks,
+        batch_size=args.batch_size,
     )
 
     print()
 
-    print(
-        "Creating FAISS index..."
-    )
+    print("Creating FAISS index...")
 
-    faiss_index = (
-        create_faiss_index(
-            embeddings
-        )
-    )
+    faiss_index = create_faiss_index(embeddings)
 
     (
         faiss_path,
         chunks_path,
         metadata_path,
     ) = save_index(
-
-        index=
-            faiss_index,
-
-        chunks=
-            all_chunks,
-
-        pdf_paths=
-            pdf_paths,
-
-        embeddings=
-            embeddings,
-
-        index_dir=
-            args.index_dir,
-
-        model_path=
-            model_path,
-
-        chunk_size=
-            args.chunk_size,
-
-        overlap=
-            args.overlap,
+        index=faiss_index,
+        chunks=all_chunks,
+        pdf_paths=pdf_paths,
+        embeddings=embeddings,
+        index_dir=args.index_dir,
+        model_path=model_path,
+        chunk_size=args.chunk_size,
+        overlap=args.overlap,
     )
 
     print()
-    print(
-        "Index complete."
-    )
+    print("Index complete.")
 
-    print(
-        "==============="
-    )
+    print("===============")
 
-    print(
-        f"Documents: "
-        f"{len(pdf_paths):,}"
-    )
+    print(f"Documents: " f"{len(pdf_paths):,}")
 
-    print(
-        f"Search records: "
-        f"{len(all_chunks):,}"
-    )
+    print(f"Search records: " f"{len(all_chunks):,}")
 
-    print(
-        f"Text chunks: "
-        f"{text_count:,}"
-    )
+    print(f"Text chunks: " f"{text_count:,}")
 
-    print(
-        f"Table rows: "
-        f"{table_count:,}"
-    )
+    print(f"Table rows: " f"{table_count:,}")
 
-    print(
-        f"FAISS vectors: "
-        f"{faiss_index.ntotal:,}"
-    )
+    print(f"FAISS vectors: " f"{faiss_index.ntotal:,}")
 
-    print(
-        f"Embedding dimensions: "
-        f"{embeddings.shape[1]}"
-    )
+    print(f"Embedding dimensions: " f"{embeddings.shape[1]}")
 
     print()
 
-    print(
-        "Files created:"
-    )
+    print("Files created:")
 
-    print(
-        f"  {faiss_path}"
-    )
+    print(f"  {faiss_path}")
 
-    print(
-        f"  {chunks_path}"
-    )
+    print(f"  {chunks_path}")
 
-    print(
-        f"  {metadata_path}"
-    )
+    print(f"  {metadata_path}")
 
 
 if __name__ == "__main__":

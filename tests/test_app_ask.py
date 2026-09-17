@@ -1,23 +1,16 @@
 from unittest.mock import Mock
 
-
 SAMPLE_RESULTS = [
     {
         "rank": 1,
         "score": 0.82,
         "year": 2019,
         "volume": "I",
-        "volume_title": (
-            "Population by County "
-            "and Sub-County"
-        ),
+        "volume_title": ("Population by County " "and Sub-County"),
         "page": 12,
         "chunk_id": 100,
         "source": "2019-kphc-volume-1.pdf",
-        "text": (
-            "Mombasa County had "
-            "1,208,333 residents."
-        ),
+        "text": ("Mombasa County had " "1,208,333 residents."),
     }
 ]
 
@@ -47,10 +40,7 @@ def configure_ready_engine(
             "volumes": [
                 {
                     "volume": "I",
-                    "title": (
-                        "Population by County "
-                        "and Sub-County"
-                    ),
+                    "title": ("Population by County " "and Sub-County"),
                 }
             ]
         },
@@ -87,22 +77,14 @@ def test_api_ask_success(
         app_module.llm,
         "answer",
         lambda **kwargs: {
-            "answer": (
-                "Mombasa had 1,208,333 "
-                "residents. [S1]"
-            ),
+            "answer": ("Mombasa had 1,208,333 " "residents. [S1]"),
             "sources": [
                 {
                     "id": "S1",
                     "volume": "I",
-                    "volume_title": (
-                        "Population by County "
-                        "and Sub-County"
-                    ),
+                    "volume_title": ("Population by County " "and Sub-County"),
                     "page": 12,
-                    "source": (
-                        "2019-kphc-volume-1.pdf"
-                    ),
+                    "source": ("2019-kphc-volume-1.pdf"),
                     "score": 0.82,
                 }
             ],
@@ -112,27 +94,16 @@ def test_api_ask_success(
 
     response = client.post(
         "/api/ask",
-        json={
-            "query": (
-                "What was Mombasa's "
-                "population?"
-            )
-        },
+        json={"query": ("What was Mombasa's " "population?")},
     )
 
     assert response.status_code == 200
 
     data = response.get_json()
 
-    assert (
-        "1,208,333"
-        in data["answer"]
-    )
+    assert "1,208,333" in data["answer"]
 
-    assert (
-        data["sources"][0]["id"]
-        == "S1"
-    )
+    assert data["sources"][0]["id"] == "S1"
 
 
 def test_api_ask_requires_question(
@@ -168,11 +139,7 @@ def test_api_ask_returns_no_results(
 
     response = client.post(
         "/api/ask",
-        json={
-            "query": (
-                "Unknown census question"
-            )
-        },
+        json={"query": ("Unknown census question")},
     )
 
     assert response.status_code == 200
@@ -197,21 +164,15 @@ def test_api_ask_calls_retrieval_first(
     calls = []
 
     def fake_search(**kwargs):
-        calls.append(
-            "search"
-        )
+        calls.append("search")
 
         return SAMPLE_RESULTS
 
     def fake_answer(**kwargs):
-        calls.append(
-            "llm"
-        )
+        calls.append("llm")
 
         return {
-            "answer": (
-                "Answer [S1]"
-            ),
+            "answer": ("Answer [S1]"),
             "sources": [],
             "evidence": SAMPLE_RESULTS,
         }
@@ -230,11 +191,7 @@ def test_api_ask_calls_retrieval_first(
 
     response = client.post(
         "/api/ask",
-        json={
-            "query": (
-                "Mombasa population"
-            )
-        },
+        json={"query": ("Mombasa population")},
     )
 
     assert response.status_code == 200
@@ -287,9 +244,7 @@ def test_api_ask_passes_volume_filter(
     response = client.post(
         "/api/ask",
         json={
-            "query": (
-                "Mombasa population"
-            ),
+            "query": ("Mombasa population"),
             "volume": "I",
             "top_k": 5,
         },
@@ -297,15 +252,9 @@ def test_api_ask_passes_volume_filter(
 
     assert response.status_code == 200
 
-    assert (
-        captured["volume"]
-        == "I"
-    )
+    assert captured["volume"] == "I"
 
-    assert (
-        captured["top_k"]
-        == 5
-    )
+    assert captured["top_k"] == 5
 
 
 def test_api_ask_rejects_unknown_volume(
@@ -321,9 +270,7 @@ def test_api_ask_rejects_unknown_volume(
     response = client.post(
         "/api/ask",
         json={
-            "query": (
-                "Mombasa population"
-            ),
+            "query": ("Mombasa population"),
             "volume": "IX",
         },
     )
@@ -332,7 +279,4 @@ def test_api_ask_rejects_unknown_volume(
 
     data = response.get_json()
 
-    assert (
-        "Unknown or unindexed volume"
-        in data["error"]
-    )
+    assert "Unknown or unindexed volume" in data["error"]

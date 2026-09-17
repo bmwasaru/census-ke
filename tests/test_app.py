@@ -1,7 +1,6 @@
 from pathlib import Path
 from unittest.mock import Mock
 
-
 SAMPLE_RESULTS = [
     {
         "rank": 1,
@@ -10,27 +9,18 @@ SAMPLE_RESULTS = [
         "year": 2019,
         "volume": "IV",
         "volume_title": (
-            "Distribution of Population "
-            "by Socio-Economic Characteristics"
+            "Distribution of Population " "by Socio-Economic Characteristics"
         ),
         "page": 215,
         "chunk_id": 500,
-        "source": (
-            "2019-kphc-volume-4.pdf"
-        ),
+        "source": ("2019-kphc-volume-4.pdf"),
         "table_number": "2.22",
-        "table_title": (
-            "Table 2.22: Distribution "
-            "of Households Growing Crops"
-        ),
+        "table_title": ("Table 2.22: Distribution " "of Households Growing Crops"),
         "row": {
             "Area": "MOMBASA",
             "Maize": "5,681",
         },
-        "text": (
-            "Area: MOMBASA. "
-            "Maize: 5,681."
-        ),
+        "text": ("Area: MOMBASA. " "Maize: 5,681."),
     }
 ]
 
@@ -53,26 +43,16 @@ def configure_ready_engine(
             "volumes": [
                 {
                     "volume": "IV",
-                    "title": (
-                        "Socio-Economic "
-                        "Characteristics"
-                    ),
+                    "title": ("Socio-Economic " "Characteristics"),
                 }
             ],
-            "sources": [
-                (
-                    "2019-kphc-"
-                    "volume-4.pdf"
-                )
-            ],
+            "sources": ["2019-kphc-" "volume-4.pdf"],
         },
     )
 
     fake_model_path = Mock()
 
-    fake_model_path.exists.return_value = (
-        True
-    )
+    fake_model_path.exists.return_value = True
 
     monkeypatch.setattr(
         app_module.engine,
@@ -95,40 +75,21 @@ def test_api_search_adds_page_url(
     monkeypatch.setattr(
         app_module.engine,
         "search",
-        lambda **kwargs:
-            SAMPLE_RESULTS,
+        lambda **kwargs: SAMPLE_RESULTS,
     )
 
     response = client.post(
         "/api/search",
-        json={
-            "query":
-                "maize in Mombasa"
-        },
+        json={"query": "maize in Mombasa"},
     )
 
-    assert (
-        response.status_code
-        == 200
-    )
+    assert response.status_code == 200
 
-    data = (
-        response.get_json()
-    )
+    data = response.get_json()
 
-    result = (
-        data["results"][0]
-    )
+    result = data["results"][0]
 
-    assert (
-        result["page_url"]
-        ==
-        (
-            "/census-pdf/"
-            "2019-kphc-volume-4.pdf"
-            "#page=215"
-        )
-    )
+    assert result["page_url"] == ("/census-pdf/" "2019-kphc-volume-4.pdf" "#page=215")
 
 
 def test_api_ask_adds_source_page_url(
@@ -145,98 +106,44 @@ def test_api_ask_adds_source_page_url(
     monkeypatch.setattr(
         app_module.engine,
         "search",
-        lambda **kwargs:
-            SAMPLE_RESULTS,
+        lambda **kwargs: SAMPLE_RESULTS,
     )
 
     monkeypatch.setattr(
         app_module.llm,
         "answer",
         lambda **kwargs: {
-            "answer":
-                (
-                    "5,681 households "
-                    "reported growing "
-                    "maize. [S1]"
-                ),
-
+            "answer": ("5,681 households " "reported growing " "maize. [S1]"),
             "sources": [
                 {
-                    "id":
-                        "S1",
-
-                    "volume":
-                        "IV",
-
-                    "page":
-                        215,
-
-                    "source":
-                        (
-                            "2019-kphc-"
-                            "volume-4.pdf"
-                        ),
-
-                    "type":
-                        "table",
-
-                    "table_number":
-                        "2.22",
-
-                    "table_title":
-                        (
-                            "Table 2.22"
-                        ),
+                    "id": "S1",
+                    "volume": "IV",
+                    "page": 215,
+                    "source": ("2019-kphc-" "volume-4.pdf"),
+                    "type": "table",
+                    "table_number": "2.22",
+                    "table_title": ("Table 2.22"),
                 }
             ],
-
-            "evidence":
-                SAMPLE_RESULTS,
+            "evidence": SAMPLE_RESULTS,
         },
     )
 
     response = client.post(
         "/api/ask",
-        json={
-            "query":
-                (
-                    "How many Mombasa "
-                    "households grow maize?"
-                )
-        },
+        json={"query": ("How many Mombasa " "households grow maize?")},
     )
 
-    assert (
-        response.status_code
-        == 200
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert data["sources"][0]["page_url"] == (
+        "/census-pdf/" "2019-kphc-volume-4.pdf" "#page=215"
     )
 
-    data = (
-        response.get_json()
-    )
-
-    assert (
-        data["sources"][0][
-            "page_url"
-        ]
-        ==
-        (
-            "/census-pdf/"
-            "2019-kphc-volume-4.pdf"
-            "#page=215"
-        )
-    )
-
-    assert (
-        data["evidence"][0][
-            "page_url"
-        ]
-        ==
-        (
-            "/census-pdf/"
-            "2019-kphc-volume-4.pdf"
-            "#page=215"
-        )
+    assert data["evidence"][0]["page_url"] == (
+        "/census-pdf/" "2019-kphc-volume-4.pdf" "#page=215"
     )
 
 
@@ -249,10 +156,7 @@ def test_api_ask_requires_query(
         json={},
     )
 
-    assert (
-        response.status_code
-        == 400
-    )
+    assert response.status_code == 400
 
 
 def test_unknown_volume_rejected(
@@ -269,18 +173,12 @@ def test_unknown_volume_rejected(
     response = client.post(
         "/api/search",
         json={
-            "query":
-                "population",
-
-            "volume":
-                "IX",
+            "query": "population",
+            "volume": "IX",
         },
     )
 
-    assert (
-        response.status_code
-        == 400
-    )
+    assert response.status_code == 400
 
 
 def test_pdf_route_serves_indexed_file(
@@ -295,25 +193,15 @@ def test_pdf_route_serves_indexed_file(
         monkeypatch,
     )
 
-    data_dir = (
-        tmp_path
-        / "data"
-    )
+    data_dir = tmp_path / "data"
 
     data_dir.mkdir()
 
-    pdf = (
-        data_dir
-        / "2019-kphc-volume-4.pdf"
-    )
+    pdf = data_dir / "2019-kphc-volume-4.pdf"
 
     # Enough for testing Flask file delivery;
     # it does not need to be a valid PDF here.
-    pdf.write_bytes(
-        b"%PDF-1.4\n"
-        b"test\n"
-        b"%%EOF"
-    )
+    pdf.write_bytes(b"%PDF-1.4\n" b"test\n" b"%%EOF")
 
     monkeypatch.setattr(
         app_module,
@@ -321,22 +209,11 @@ def test_pdf_route_serves_indexed_file(
         data_dir,
     )
 
-    response = client.get(
-        (
-            "/census-pdf/"
-            "2019-kphc-volume-4.pdf"
-        )
-    )
+    response = client.get(("/census-pdf/" "2019-kphc-volume-4.pdf"))
 
-    assert (
-        response.status_code
-        == 200
-    )
+    assert response.status_code == 200
 
-    assert (
-        response.mimetype
-        == "application/pdf"
-    )
+    assert response.mimetype == "application/pdf"
 
 
 def test_pdf_route_rejects_unknown_file(
@@ -350,14 +227,9 @@ def test_pdf_route_rejects_unknown_file(
         monkeypatch,
     )
 
-    response = client.get(
-        "/census-pdf/not-indexed.pdf"
-    )
+    response = client.get("/census-pdf/not-indexed.pdf")
 
-    assert (
-        response.status_code
-        == 404
-    )
+    assert response.status_code == 404
 
 
 def test_pdf_route_rejects_directory_traversal(
@@ -371,11 +243,6 @@ def test_pdf_route_rejects_directory_traversal(
         monkeypatch,
     )
 
-    response = client.get(
-        "/census-pdf/../secret.pdf"
-    )
+    response = client.get("/census-pdf/../secret.pdf")
 
-    assert (
-        response.status_code
-        == 404
-    )
+    assert response.status_code == 404

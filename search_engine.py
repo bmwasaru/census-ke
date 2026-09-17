@@ -9,25 +9,13 @@ from sentence_transformers import (
     SentenceTransformer,
 )
 
-
-BASE_DIR = (
-    Path(__file__)
-    .resolve()
-    .parent
-)
+BASE_DIR = Path(__file__).resolve().parent
 
 
-DEFAULT_MODEL_PATH = (
-    BASE_DIR
-    / "models"
-    / "bge-small-en-v1.5"
-)
+DEFAULT_MODEL_PATH = BASE_DIR / "models" / "bge-small-en-v1.5"
 
 
-QUERY_INSTRUCTION = (
-    "Represent this sentence for "
-    "searching relevant passages: "
-)
+QUERY_INSTRUCTION = "Represent this sentence for " "searching relevant passages: "
 
 
 class CensusSearchEngine:
@@ -38,19 +26,13 @@ class CensusSearchEngine:
         model_path: Path = DEFAULT_MODEL_PATH,
     ):
 
-        self.index_dir = Path(
-            index_dir
-        )
+        self.index_dir = Path(index_dir)
 
-        self.model_path = Path(
-            model_path
-        )
+        self.model_path = Path(model_path)
 
         self._model = None
 
-        self._model_lock = (
-            Lock()
-        )
+        self._model_lock = Lock()
 
         self._chunks = []
 
@@ -69,9 +51,7 @@ class CensusSearchEngine:
     @property
     def chunk_count(self):
 
-        return len(
-            self._chunks
-        )
+        return len(self._chunks)
 
     @property
     def volumes(self):
@@ -93,9 +73,7 @@ class CensusSearchEngine:
 
                 if self._model is None:
 
-                    if not (
-                        self.model_path.exists()
-                    ):
+                    if not (self.model_path.exists()):
 
                         raise RuntimeError(
                             "Local embedding "
@@ -106,13 +84,9 @@ class CensusSearchEngine:
                             "first."
                         )
 
-                    self._model = (
-                        SentenceTransformer(
-                            str(
-                                self.model_path
-                            ),
-                            local_files_only=True,
-                        )
+                    self._model = SentenceTransformer(
+                        str(self.model_path),
+                        local_files_only=True,
                     )
 
         return self._model
@@ -123,61 +97,25 @@ class CensusSearchEngine:
 
     def _load_index(self):
 
-        chunks_path = (
-            self.index_dir
-            / "chunks.json"
-        )
+        chunks_path = self.index_dir / "chunks.json"
 
-        faiss_path = (
-            self.index_dir
-            / "census.faiss"
-        )
+        faiss_path = self.index_dir / "census.faiss"
 
-        metadata_path = (
-            self.index_dir
-            / "metadata.json"
-        )
+        metadata_path = self.index_dir / "metadata.json"
 
-        if (
-            not chunks_path.exists()
-            or
-            not faiss_path.exists()
-        ):
+        if not chunks_path.exists() or not faiss_path.exists():
             self._loaded = False
             return
 
-        self._chunks = (
-            json.loads(
-                chunks_path.read_text(
-                    encoding="utf-8"
-                )
-            )
-        )
+        self._chunks = json.loads(chunks_path.read_text(encoding="utf-8"))
 
-        self._index = (
-            faiss.read_index(
-                str(
-                    faiss_path
-                )
-            )
-        )
+        self._index = faiss.read_index(str(faiss_path))
 
         if metadata_path.exists():
 
-            self.metadata = (
-                json.loads(
-                    metadata_path.read_text(
-                        encoding="utf-8"
-                    )
-                )
-            )
+            self.metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
 
-        if (
-            len(
-                self._chunks
-            )
-            != self._index.ntotal
-        ):
+        if len(self._chunks) != self._index.ntotal:
 
             raise RuntimeError(
                 "Search index is "
@@ -194,15 +132,7 @@ class CensusSearchEngine:
 
     def is_ready(self):
 
-        return (
-            self._loaded
-            and
-            self._index is not None
-            and
-            bool(
-                self._chunks
-            )
-        )
+        return self._loaded and self._index is not None and bool(self._chunks)
 
     # -----------------------------------------------------
     # QUERY EMBEDDING
@@ -213,25 +143,14 @@ class CensusSearchEngine:
         query: str,
     ):
 
-        model = (
-            self._get_model()
-        )
+        model = self._get_model()
 
-        prepared_query = (
-            f"{QUERY_INSTRUCTION}"
-            f"{query.strip()}"
-        )
+        prepared_query = f"{QUERY_INSTRUCTION}" f"{query.strip()}"
 
-        embedding = (
-            model.encode(
-                [
-                    prepared_query
-                ],
-                normalize_embeddings=
-                    True,
-                convert_to_numpy=
-                    True,
-            )
+        embedding = model.encode(
+            [prepared_query],
+            normalize_embeddings=True,
+            convert_to_numpy=True,
         )
 
         return np.asarray(
@@ -251,88 +170,42 @@ class CensusSearchEngine:
     ):
 
         result = {
-            "rank":
-                rank,
-
-            "score":
-                round(
-                    float(
-                        score
-                    ),
-                    4,
-                ),
-
-            "year":
-                chunk.get(
-                    "year",
-                    2019,
-                ),
-
-            "type":
-                chunk.get(
-                    "type",
-                    "text",
-                ),
-
-            "volume":
-                chunk.get(
-                    "volume"
-                ),
-
-            "volume_title":
-                chunk.get(
-                    "volume_title"
-                ),
-
-            "page":
-                chunk.get(
-                    "page"
-                ),
-
-            "chunk_id":
-                chunk.get(
-                    "chunk_id"
-                ),
-
-            "source":
-                chunk.get(
-                    "source"
-                ),
-
-            "text":
-                chunk.get(
-                    "text",
-                    "",
-                ),
+            "rank": rank,
+            "score": round(
+                float(score),
+                4,
+            ),
+            "year": chunk.get(
+                "year",
+                2019,
+            ),
+            "type": chunk.get(
+                "type",
+                "text",
+            ),
+            "volume": chunk.get("volume"),
+            "volume_title": chunk.get("volume_title"),
+            "page": chunk.get("page"),
+            "chunk_id": chunk.get("chunk_id"),
+            "source": chunk.get("source"),
+            "text": chunk.get(
+                "text",
+                "",
+            ),
         }
 
-        if (
-            result["type"]
-            == "table"
-        ):
+        if result["type"] == "table":
 
-            result[
-                "table_number"
-            ] = chunk.get(
-                "table_number"
-            )
+            result["table_number"] = chunk.get("table_number")
 
-            result[
-                "table_title"
-            ] = chunk.get(
-                "table_title"
-            )
+            result["table_title"] = chunk.get("table_title")
 
-            result[
-                "columns"
-            ] = chunk.get(
+            result["columns"] = chunk.get(
                 "columns",
                 [],
             )
 
-            result[
-                "row"
-            ] = chunk.get(
+            result["row"] = chunk.get(
                 "row",
                 {},
             )
@@ -353,25 +226,20 @@ class CensusSearchEngine:
         if not self.is_ready():
             return []
 
-        query_vector = (
-            self._encode_query(
-                query
-            )
-        )
+        query_vector = self._encode_query(query)
 
         # When filtering by volume, retrieve
         # additional candidates first.
         candidate_k = min(
-            len(
-                self._chunks
+            len(self._chunks),
+            (
+                max(
+                    top_k * 20,
+                    100,
+                )
+                if volume
+                else top_k
             ),
-
-            max(
-                top_k * 20,
-                100,
-            )
-            if volume
-            else top_k,
         )
 
         (
@@ -392,43 +260,20 @@ class CensusSearchEngine:
             if idx < 0:
                 continue
 
-            chunk = (
-                self._chunks[
-                    int(idx)
-                ]
-            )
+            chunk = self._chunks[int(idx)]
 
-            if (
-                volume
-                and
-                chunk.get(
-                    "volume"
-                )
-                != volume
-            ):
+            if volume and chunk.get("volume") != volume:
                 continue
 
-            result = (
-                self._result_from_chunk(
-                    chunk=
-                        chunk,
-
-                    score=
-                        score,
-
-                    rank=
-                        len(results) + 1,
-                )
+            result = self._result_from_chunk(
+                chunk=chunk,
+                score=score,
+                rank=len(results) + 1,
             )
 
-            results.append(
-                result
-            )
+            results.append(result)
 
-            if (
-                len(results)
-                >= top_k
-            ):
+            if len(results) >= top_k:
                 break
 
         return results

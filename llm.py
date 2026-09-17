@@ -4,7 +4,6 @@ from typing import Any
 
 import requests
 
-
 SYSTEM_PROMPT = """
 You are the Kenya Census Guide.
 
@@ -71,9 +70,7 @@ Your goal is accuracy, clarity, accessibility, and traceability to the census ev
 """.strip()
 
 
-class LLMServiceError(
-    RuntimeError
-):
+class LLMServiceError(RuntimeError):
     """
     Raised when Ollama cannot provide
     a usable answer.
@@ -91,10 +88,7 @@ def clean_llm_text(
     Source citations such as [S1] remain intact.
     """
 
-    text = (
-        text
-        or ""
-    ).strip()
+    text = (text or "").strip()
 
     # Remove fenced code markers.
     text = re.sub(
@@ -184,12 +178,9 @@ class CensusLLM:
             )
         ).rstrip("/")
 
-        self.model = (
-            model
-            or os.getenv(
-                "OLLAMA_MODEL",
-                "qwen3:1.7b",
-            )
+        self.model = model or os.getenv(
+            "OLLAMA_MODEL",
+            "qwen3:1.7b",
         )
 
         self.timeout = int(
@@ -221,16 +212,12 @@ class CensusLLM:
             )
         )
 
-        self.keep_alive = (
-            os.getenv(
-                "OLLAMA_KEEP_ALIVE",
-                "5m",
-            )
+        self.keep_alive = os.getenv(
+            "OLLAMA_KEEP_ALIVE",
+            "5m",
         )
 
-        self.session = (
-            requests.Session()
-        )
+        self.session = requests.Session()
 
     # -----------------------------------------------------
     # HEALTH CHECK
@@ -242,64 +229,38 @@ class CensusLLM:
 
         try:
 
-            response = (
-                self.session.get(
-                    f"{self.base_url}"
-                    "/api/tags",
-
-                    timeout=3,
-                )
+            response = self.session.get(
+                f"{self.base_url}" "/api/tags",
+                timeout=3,
             )
 
             response.raise_for_status()
 
-            data = (
-                response.json()
-            )
+            data = response.json()
 
-            models = (
-                data.get(
-                    "models",
-                    [],
-                )
+            models = data.get(
+                "models",
+                [],
             )
 
             installed = set()
 
             for model in models:
 
-                name = (
-                    model.get(
-                        "name"
-                    )
-                )
+                name = model.get("name")
 
-                model_name = (
-                    model.get(
-                        "model"
-                    )
-                )
+                model_name = model.get("model")
 
                 if name:
-                    installed.add(
-                        name
-                    )
+                    installed.add(name)
 
                 if model_name:
-                    installed.add(
-                        model_name
-                    )
+                    installed.add(model_name)
 
             return {
-                "reachable":
-                    True,
-
-                "model":
-                    self.model,
-
-                "model_available":
-                    self.model
-                    in installed,
+                "reachable": True,
+                "model": self.model,
+                "model_available": self.model in installed,
             }
 
         except (
@@ -308,14 +269,9 @@ class CensusLLM:
         ):
 
             return {
-                "reachable":
-                    False,
-
-                "model":
-                    self.model,
-
-                "model_available":
-                    False,
+                "reachable": False,
+                "model": self.model,
+                "model_available": False,
             }
 
     # -----------------------------------------------------
@@ -331,60 +287,32 @@ class CensusLLM:
         into clean LLM context.
         """
 
-        row = (
-            result.get(
-                "row"
-            )
-            or {}
-        )
+        row = result.get("row") or {}
 
         lines = []
 
-        table_title = (
-            result.get(
-                "table_title"
-            )
-        )
+        table_title = result.get("table_title")
 
         if table_title:
 
-            lines.append(
-                f"Table: "
-                f"{table_title}"
-            )
+            lines.append(f"Table: " f"{table_title}")
 
         for key, value in row.items():
 
-            value = (
-                ""
-                if value is None
-                else str(
-                    value
-                ).strip()
-            )
+            value = "" if value is None else str(value).strip()
 
-            if (
-                not value
-                or value in {
-                    "-",
-                    "—",
-                    "–",
-                }
-            ):
+            if not value or value in {
+                "-",
+                "—",
+                "–",
+            }:
                 continue
 
-            lines.append(
-                f"{key}: {value}"
-            )
+            lines.append(f"{key}: {value}")
 
-        return (
-            "\n".join(
-                lines
-            )
-            or result.get(
-                "text",
-                "",
-            )
+        return "\n".join(lines) or result.get(
+            "text",
+            "",
         )
 
     # -----------------------------------------------------
@@ -408,34 +336,19 @@ class CensusLLM:
         for result in results:
 
             key = (
-                result.get(
-                    "source"
-                ),
-                result.get(
-                    "page"
-                ),
-                result.get(
-                    "chunk_id"
-                ),
+                result.get("source"),
+                result.get("page"),
+                result.get("chunk_id"),
             )
 
             if key in seen:
                 continue
 
-            seen.add(
-                key
-            )
+            seen.add(key)
 
-            selected.append(
-                result
-            )
+            selected.append(result)
 
-            if (
-                len(
-                    selected
-                )
-                >= max_chunks
-            ):
+            if len(selected) >= max_chunks:
                 break
 
         evidence_blocks = []
@@ -447,38 +360,23 @@ class CensusLLM:
             start=1,
         ):
 
-            source_id = (
-                f"S{number}"
+            source_id = f"S{number}"
+
+            evidence_type = result.get(
+                "type",
+                "text",
             )
 
-            evidence_type = (
-                result.get(
-                    "type",
-                    "text",
-                )
-            )
+            if evidence_type == "table":
 
-            if (
-                evidence_type
-                == "table"
-            ):
-
-                evidence_body = (
-                    self._table_evidence_text(
-                        result
-                    )
-                )
+                evidence_body = self._table_evidence_text(result)
 
             else:
 
-                evidence_body = (
-                    result
-                    .get(
-                        "text",
-                        "",
-                    )
-                    .strip()
-                )
+                evidence_body = result.get(
+                    "text",
+                    "",
+                ).strip()
 
             block = (
                 f"[{source_id}]\n"
@@ -497,62 +395,25 @@ class CensusLLM:
                 f"{evidence_body}"
             )
 
-            evidence_blocks.append(
-                block
-            )
+            evidence_blocks.append(block)
 
             sources.append(
                 {
-                    "id":
-                        source_id,
-
-                    "volume":
-                        result.get(
-                            "volume"
-                        ),
-
-                    "volume_title":
-                        result.get(
-                            "volume_title"
-                        ),
-
-                    "page":
-                        result.get(
-                            "page"
-                        ),
-
-                    "source":
-                        result.get(
-                            "source"
-                        ),
-
-                    "type":
-                        evidence_type,
-
-                    "table_number":
-                        result.get(
-                            "table_number"
-                        ),
-
-                    "table_title":
-                        result.get(
-                            "table_title"
-                        ),
-
-                    "score":
-                        result.get(
-                            "score"
-                        ),
+                    "id": source_id,
+                    "volume": result.get("volume"),
+                    "volume_title": result.get("volume_title"),
+                    "page": result.get("page"),
+                    "source": result.get("source"),
+                    "type": evidence_type,
+                    "table_number": result.get("table_number"),
+                    "table_title": result.get("table_title"),
+                    "score": result.get("score"),
                 }
             )
 
         return (
-            "\n\n---\n\n".join(
-                evidence_blocks
-            ),
-
+            "\n\n---\n\n".join(evidence_blocks),
             sources,
-
             selected,
         )
 
@@ -606,18 +467,13 @@ Do not mention information that is not present in the evidence.
         if not search_results:
 
             return {
-                "answer":
-                    (
-                        "I could not find enough "
-                        "relevant census information "
-                        "to answer this question."
-                    ),
-
-                "sources":
-                    [],
-
-                "evidence":
-                    [],
+                "answer": (
+                    "I could not find enough "
+                    "relevant census information "
+                    "to answer this question."
+                ),
+                "sources": [],
+                "evidence": [],
             }
 
         (
@@ -626,75 +482,44 @@ Do not mention information that is not present in the evidence.
             selected_results,
         ) = self._prepare_evidence(
             search_results,
-            max_chunks=
-                max_chunks,
+            max_chunks=max_chunks,
         )
 
-        user_prompt = (
-            self._build_user_prompt(
-                question,
-                evidence_text,
-            )
+        user_prompt = self._build_user_prompt(
+            question,
+            evidence_text,
         )
 
         payload = {
-            "model":
-                self.model,
-
+            "model": self.model,
             "messages": [
                 {
-                    "role":
-                        "system",
-
-                    "content":
-                        SYSTEM_PROMPT,
+                    "role": "system",
+                    "content": SYSTEM_PROMPT,
                 },
-
                 {
-                    "role":
-                        "user",
-
-                    "content":
-                        user_prompt,
+                    "role": "user",
+                    "content": user_prompt,
                 },
             ],
-
-            "stream":
-                False,
-
+            "stream": False,
             # Qwen3 thinking is unnecessary
             # for this lightweight explanation task.
-            "think":
-                False,
-
-            "keep_alive":
-                self.keep_alive,
-
+            "think": False,
+            "keep_alive": self.keep_alive,
             "options": {
-                "temperature":
-                    self.temperature,
-
-                "num_ctx":
-                    self.num_ctx,
-
-                "num_predict":
-                    self.num_predict,
+                "temperature": self.temperature,
+                "num_ctx": self.num_ctx,
+                "num_predict": self.num_predict,
             },
         }
 
         try:
 
-            response = (
-                self.session.post(
-                    f"{self.base_url}"
-                    "/api/chat",
-
-                    json=
-                        payload,
-
-                    timeout=
-                        self.timeout,
-                )
+            response = self.session.post(
+                f"{self.base_url}" "/api/chat",
+                json=payload,
+                timeout=self.timeout,
             )
 
             response.raise_for_status()
@@ -702,69 +527,43 @@ Do not mention information that is not present in the evidence.
         except requests.ConnectionError as exc:
 
             raise LLMServiceError(
-                "Could not connect to Ollama. "
-                "Make sure Ollama is running."
+                "Could not connect to Ollama. " "Make sure Ollama is running."
             ) from exc
 
         except requests.Timeout as exc:
 
             raise LLMServiceError(
-                "The local language model "
-                "took too long to respond."
+                "The local language model " "took too long to respond."
             ) from exc
 
         except requests.RequestException as exc:
 
-            raise LLMServiceError(
-                f"Ollama request failed: "
-                f"{exc}"
-            ) from exc
+            raise LLMServiceError(f"Ollama request failed: " f"{exc}") from exc
 
         try:
 
-            data = (
-                response.json()
-            )
+            data = response.json()
 
-            answer = (
-                data
-                .get(
-                    "message",
-                    {},
-                )
-                .get(
-                    "content",
-                    "",
-                )
+            answer = data.get(
+                "message",
+                {},
+            ).get(
+                "content",
+                "",
             )
 
         except ValueError as exc:
 
-            raise LLMServiceError(
-                "Ollama returned an "
-                "invalid response."
-            ) from exc
+            raise LLMServiceError("Ollama returned an " "invalid response.") from exc
 
-        answer = (
-            clean_llm_text(
-                answer
-            )
-        )
+        answer = clean_llm_text(answer)
 
         if not answer:
 
-            raise LLMServiceError(
-                "The language model "
-                "returned an empty answer."
-            )
+            raise LLMServiceError("The language model " "returned an empty answer.")
 
         return {
-            "answer":
-                answer,
-
-            "sources":
-                sources,
-
-            "evidence":
-                selected_results,
+            "answer": answer,
+            "sources": sources,
+            "evidence": selected_results,
         }

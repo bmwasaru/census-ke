@@ -6,7 +6,6 @@ from urllib.request import Request, urlopen
 
 from census_sources import CENSUS_SOURCES
 
-
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 

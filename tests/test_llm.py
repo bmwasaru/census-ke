@@ -7,7 +7,6 @@ from llm import (
     clean_llm_text,
 )
 
-
 SAMPLE_RESULTS = [
     {
         "rank": 1,
@@ -16,33 +15,20 @@ SAMPLE_RESULTS = [
         "type": "table",
         "volume": "IV",
         "volume_title": (
-            "Distribution of Population "
-            "by Socio-Economic Characteristics"
+            "Distribution of Population " "by Socio-Economic Characteristics"
         ),
         "page": 215,
         "chunk_id": 500,
-        "source": (
-            "2019-kphc-volume-4.pdf"
-        ),
+        "source": ("2019-kphc-volume-4.pdf"),
         "table_number": "2.22",
-        "table_title": (
-            "Table 2.22: Distribution "
-            "of Households Growing Crops"
-        ),
+        "table_title": ("Table 2.22: Distribution " "of Households Growing Crops"),
         "row": {
-            "County/Sub County":
-                "MOMBASA",
-            "Households Farming":
-                "12,497",
-            "Maize":
-                "5,681",
-            "Beans":
-                "2,849",
+            "County/Sub County": "MOMBASA",
+            "Households Farming": "12,497",
+            "Maize": "5,681",
+            "Beans": "2,849",
         },
-        "text": (
-            "Area: MOMBASA. "
-            "Maize: 5,681."
-        ),
+        "text": ("Area: MOMBASA. " "Maize: 5,681."),
     }
 ]
 
@@ -54,15 +40,9 @@ class FakeResponse:
         data=None,
         status_code=200,
     ):
-        self.data = (
-            data
-            if data is not None
-            else {}
-        )
+        self.data = data if data is not None else {}
 
-        self.status_code = (
-            status_code
-        )
+        self.status_code = status_code
 
     def raise_for_status(
         self,
@@ -70,10 +50,7 @@ class FakeResponse:
 
         if self.status_code >= 400:
 
-            raise requests.HTTPError(
-                f"HTTP "
-                f"{self.status_code}"
-            )
+            raise requests.HTTPError(f"HTTP " f"{self.status_code}")
 
     def json(
         self,
@@ -83,35 +60,22 @@ class FakeResponse:
 
 def test_clean_llm_text_removes_heading():
 
-    output = clean_llm_text(
-        "## Mombasa Agriculture"
-    )
+    output = clean_llm_text("## Mombasa Agriculture")
 
-    assert output == (
-        "Mombasa Agriculture"
-    )
+    assert output == ("Mombasa Agriculture")
 
 
 def test_clean_llm_text_removes_bold():
 
-    output = clean_llm_text(
-        "**5,681 households** "
-        "grow maize. [S1]"
-    )
+    output = clean_llm_text("**5,681 households** " "grow maize. [S1]")
 
-    assert output == (
-        "5,681 households "
-        "grow maize. [S1]"
-    )
+    assert output == ("5,681 households " "grow maize. [S1]")
 
 
 def test_clean_llm_text_keeps_citation():
 
     output = clean_llm_text(
-        "# Result\n\n"
-        "**Mombasa** has "
-        "5,681 maize-growing "
-        "households. [S1]"
+        "# Result\n\n" "**Mombasa** has " "5,681 maize-growing " "households. [S1]"
     )
 
     assert "[S1]" in output
@@ -123,42 +87,22 @@ def test_clean_llm_text_keeps_citation():
 
 def test_clean_llm_text_converts_bullets():
 
-    output = clean_llm_text(
-        "- Maize: 5,681\n"
-        "- Beans: 2,849"
-    )
+    output = clean_llm_text("- Maize: 5,681\n" "- Beans: 2,849")
 
-    assert (
-        "• Maize: 5,681"
-        in output
-    )
+    assert "• Maize: 5,681" in output
 
 
 def test_table_evidence_is_structured():
 
     llm = CensusLLM()
 
-    output = (
-        llm._table_evidence_text(
-            SAMPLE_RESULTS[0]
-        )
-    )
+    output = llm._table_evidence_text(SAMPLE_RESULTS[0])
 
-    assert (
-        "County/Sub County: "
-        "MOMBASA"
-        in output
-    )
+    assert "County/Sub County: " "MOMBASA" in output
 
-    assert (
-        "Maize: 5,681"
-        in output
-    )
+    assert "Maize: 5,681" in output
 
-    assert (
-        "Beans: 2,849"
-        in output
-    )
+    assert "Beans: 2,849" in output
 
 
 def test_prepare_evidence_assigns_source():
@@ -169,28 +113,15 @@ def test_prepare_evidence_assigns_source():
         evidence,
         sources,
         selected,
-    ) = llm._prepare_evidence(
-        SAMPLE_RESULTS
-    )
+    ) = llm._prepare_evidence(SAMPLE_RESULTS)
 
     assert "[S1]" in evidence
 
-    assert (
-        sources[0]["id"]
-        == "S1"
-    )
+    assert sources[0]["id"] == "S1"
 
-    assert (
-        sources[0]["type"]
-        == "table"
-    )
+    assert sources[0]["type"] == "table"
 
-    assert (
-        sources[0][
-            "table_number"
-        ]
-        == "2.22"
-    )
+    assert sources[0]["table_number"] == "2.22"
 
     assert len(selected) == 1
 
@@ -227,22 +158,12 @@ def test_answer_cleans_markdown(
     )
 
     result = llm.answer(
-        (
-            "How many Mombasa "
-            "households grow maize?"
-        ),
+        ("How many Mombasa " "households grow maize?"),
         SAMPLE_RESULTS,
     )
 
-    assert (
-        result["answer"]
-        ==
-        (
-            "Answer\n\n"
-            "5,681 households "
-            "reported growing "
-            "maize. [S1]"
-        )
+    assert result["answer"] == (
+        "Answer\n\n" "5,681 households " "reported growing " "maize. [S1]"
     )
 
 
@@ -262,14 +183,7 @@ def test_answer_disables_qwen_thinking(
 
         captured["payload"] = json
 
-        return FakeResponse(
-            {
-                "message": {
-                    "content":
-                        "5,681 households. [S1]"
-                }
-            }
-        )
+        return FakeResponse({"message": {"content": "5,681 households. [S1]"}})
 
     monkeypatch.setattr(
         llm.session,
@@ -282,19 +196,9 @@ def test_answer_disables_qwen_thinking(
         SAMPLE_RESULTS,
     )
 
-    assert (
-        captured[
-            "payload"
-        ]["think"]
-        is False
-    )
+    assert captured["payload"]["think"] is False
 
-    assert (
-        captured[
-            "payload"
-        ]["stream"]
-        is False
-    )
+    assert captured["payload"]["stream"] is False
 
 
 def test_answer_uses_qwen_model(
@@ -313,14 +217,7 @@ def test_answer_uses_qwen_model(
 
         captured["payload"] = json
 
-        return FakeResponse(
-            {
-                "message": {
-                    "content":
-                        "Answer [S1]"
-                }
-            }
-        )
+        return FakeResponse({"message": {"content": "Answer [S1]"}})
 
     monkeypatch.setattr(
         llm.session,
@@ -333,12 +230,7 @@ def test_answer_uses_qwen_model(
         SAMPLE_RESULTS,
     )
 
-    assert (
-        captured[
-            "payload"
-        ]["model"]
-        == "qwen3:1.7b"
-    )
+    assert captured["payload"]["model"] == "qwen3:1.7b"
 
 
 def test_connection_error(
@@ -352,11 +244,7 @@ def test_connection_error(
         **kwargs,
     ):
 
-        raise (
-            requests.ConnectionError(
-                "connection refused"
-            )
-        )
+        raise (requests.ConnectionError("connection refused"))
 
     monkeypatch.setattr(
         llm.session,
@@ -364,9 +252,7 @@ def test_connection_error(
         fail,
     )
 
-    with pytest.raises(
-        LLMServiceError
-    ):
+    with pytest.raises(LLMServiceError):
 
         llm.answer(
             "Question",
@@ -385,13 +271,7 @@ def test_empty_answer_raises(
         **kwargs,
     ):
 
-        return FakeResponse(
-            {
-                "message": {
-                    "content": ""
-                }
-            }
-        )
+        return FakeResponse({"message": {"content": ""}})
 
     monkeypatch.setattr(
         llm.session,
@@ -399,9 +279,7 @@ def test_empty_answer_raises(
         fake_post,
     )
 
-    with pytest.raises(
-        LLMServiceError
-    ):
+    with pytest.raises(LLMServiceError):
 
         llm.answer(
             "Question",
@@ -424,11 +302,8 @@ def test_health_model_available(
             {
                 "models": [
                     {
-                        "name":
-                            "qwen3:1.7b",
-
-                        "model":
-                            "qwen3:1.7b",
+                        "name": "qwen3:1.7b",
+                        "model": "qwen3:1.7b",
                     }
                 ]
             }
@@ -440,18 +315,8 @@ def test_health_model_available(
         fake_get,
     )
 
-    status = (
-        llm.health()
-    )
+    status = llm.health()
 
-    assert (
-        status["reachable"]
-        is True
-    )
+    assert status["reachable"] is True
 
-    assert (
-        status[
-            "model_available"
-        ]
-        is True
-    )
+    assert status["model_available"] is True
