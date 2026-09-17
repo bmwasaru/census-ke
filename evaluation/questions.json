@@ -1,0 +1,24 @@
+[
+  {
+    "id": "mombasa_population",
+    "question": "What was the population of Mombasa County?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [10, 11, 12]
+      }
+    ],
+    "expected_values": [
+      "1,208,333"
+    ]
+  },
+
+  {
+    "id": "future_population",
+    "question": "What was the population of Nairobi in 2024?",
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": []
+  }
+]

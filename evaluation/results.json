@@ -1,0 +1,42 @@
+[
+  {
+    "id": "mombasa_population",
+    "question": "What was the population of Mombasa County?",
+    "hit@1": false,
+    "hit@3": false,
+    "hit@5": false,
+    "reciprocal_rank": 0,
+    "returned": [
+      {
+        "rank": 1,
+        "volume": "IV",
+        "page": 462,
+        "score": 0.7639
+      },
+      {
+        "rank": 2,
+        "volume": "III",
+        "page": 30,
+        "score": 0.7156
+      },
+      {
+        "rank": 3,
+        "volume": "IV",
+        "page": 151,
+        "score": 0.6983
+      },
+      {
+        "rank": 4,
+        "volume": "III",
+        "page": 467,
+        "score": 0.6978
+      },
+      {
+        "rank": 5,
+        "volume": "II",
+        "page": 18,
+        "score": 0.6822
+      }
+    ]
+  }
+]

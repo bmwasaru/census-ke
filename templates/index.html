@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Ask the Kenya Census</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<main class="shell">
+
+    <header class="hero">
+
+        <div class="flag-line">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <p class="eyebrow">
+            2019 Kenya Population & Housing Census
+        </p>
+
+        <h1>
+            Ask the Kenya Census.
+        </h1>
+
+        <p class="intro">
+            Ask questions in everyday language and get clear answers
+            grounded in official Kenya census reports.
+        </p>
+
+    </header>
+
+
+    <section class="search-card">
+
+        <form id="search-form">
+
+            <label for="query">
+                What would you like to know?
+            </label>
+
+            <div class="search-row">
+
+                <input
+                    id="query"
+                    type="search"
+                    autocomplete="off"
+                    placeholder="e.g. How many households in Mombasa grow maize?"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    id="ask-button"
+                >
+                    Ask Census
+                </button>
+
+            </div>
+
+
+            <div class="filters">
+
+                <label for="volume">
+                    Search within
+                </label>
+
+                <select id="volume">
+
+                    <option value="">
+                        All census volumes
+                    </option>
+
+                    {% for item in volumes %}
+
+                    <option value="{{ item.volume }}">
+                        Volume {{ item.volume }} — {{ item.title }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <p class="hint">
+                Try questions about population, age, education,
+                employment, agriculture, housing, internet use,
+                disability or households.
+            </p>
+
+        </form>
+
+    </section>
+
+
+    {% if not indexed %}
+
+    <section class="notice">
+
+        <strong>
+            Search index not available.
+        </strong>
+
+        Run
+
+        <code>
+            python ingest.py
+        </code>
+
+        first.
+
+    </section>
+
+    {% endif %}
+
+
+    <section
+        id="status"
+        class="status"
+        aria-live="polite"
+    ></section>
+
+
+    <section
+        id="answer-section"
+        class="answer-section"
+        hidden
+    >
+
+        <article class="answer-card">
+
+            <p class="answer-label">
+                Census answer
+            </p>
+
+            <div
+                id="answer"
+                class="answer"
+            ></div>
+
+        </article>
+
+
+        <div id="sources"></div>
+
+
+        <details
+            id="evidence-panel"
+            class="evidence-panel"
+        >
+
+            <summary>
+                View original census evidence
+            </summary>
+
+            <div id="evidence"></div>
+
+        </details>
+
+    </section>
+
+</main>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const form =
+            document.getElementById(
+                "search-form"
+            );
+
+        const queryInput =
+            document.getElementById(
+                "query"
+            );
+
+        const volumeInput =
+            document.getElementById(
+                "volume"
+            );
+
+        const statusEl =
+            document.getElementById(
+                "status"
+            );
+
+        const answerSection =
+            document.getElementById(
+                "answer-section"
+            );
+
+        const answerEl =
+            document.getElementById(
+                "answer"
+            );
+
+        const sourcesEl =
+            document.getElementById(
+                "sources"
+            );
+
+        const evidenceEl =
+            document.getElementById(
+                "evidence"
+            );
+
+        const askButton =
+            document.getElementById(
+                "ask-button"
+            );
+
+
+        /* ==========================================
+           HTML ESCAPING
+        ========================================== */
+
+        function escapeHtml(
+            value
+        ) {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+            div.textContent =
+                value == null
+                ? ""
+                : String(value);
+
+            return div.innerHTML;
+        }
+
+
+        /* ==========================================
+           PAGE URL VALIDATION
+        ========================================== */
+
+        function validPageUrl(
+            value
+        ) {
+
+            if (
+                typeof value
+                !== "string"
+            ) {
+                return "";
+            }
+
+            /*
+             * Only allow the URLs generated
+             * by our Flask census PDF route.
+             */
+
+            if (
+                !value.startsWith(
+                    "/census-pdf/"
+                )
+            ) {
+                return "";
+            }
+
+            return value;
+        }
+
+
+        /* ==========================================
+           CITATIONS
+        ========================================== */
+
+        function decorateCitations(
+            value
+        ) {
+
+            return value.replace(
+                /\[S(\d+)\]/g,
+                '<span class="citation">[S$1]</span>'
+            );
+        }
+
+
+        /* ==========================================
+           CLEAR PREVIOUS RESULTS
+        ========================================== */
+
+        function clearResults() {
+
+            answerEl.innerHTML =
+                "";
+
+            sourcesEl.innerHTML =
+                "";
+
+            evidenceEl.innerHTML =
+                "";
+
+            answerSection.hidden =
+                true;
+        }
+
+
+        /* ==========================================
+           ANSWER
+        ========================================== */
+
+        function renderAnswer(
+            text
+        ) {
+
+            const escaped =
+                escapeHtml(
+                    text || ""
+                );
+
+            const decorated =
+                decorateCitations(
+                    escaped
+                );
+
+            const paragraphs =
+                decorated
+                .split(
+                    /\n\s*\n/
+                )
+                .filter(
+                    Boolean
+                );
+
+
+            answerEl.innerHTML =
+                paragraphs
+                .map(
+                    paragraph => {
+
+                        const lines =
+                            paragraph
+                            .split(
+                                "\n"
+                            )
+                            .filter(
+                                Boolean
+                            );
+
+
+                        const isBulletList =
+                            lines.length > 0
+                            &&
+                            lines.every(
+                                line =>
+                                    line
+                                    .trim()
+                                    .startsWith(
+                                        "• "
+                                    )
+                            );
+
+
+                        if (
+                            isBulletList
+                        ) {
+
+                            const listItems =
+                                lines
+                                .map(
+                                    line => {
+
+                                        const clean =
+                                            line.replace(
+                                                /^\s*•\s*/,
+                                                ""
+                                            );
+
+                                        return `
+                                            <li>
+                                                ${clean}
+                                            </li>
+                                        `;
+                                    }
+                                )
+                                .join(
+                                    ""
+                                );
+
+
+                            return `
+                                <ul class="answer-list">
+                                    ${listItems}
+                                </ul>
+                            `;
+                        }
+
+
+                        return `
+                            <p>
+                                ${
+                                    paragraph.replace(
+                                        /\n/g,
+                                        "<br>"
+                                    )
+                                }
+                            </p>
+                        `;
+                    }
+                )
+                .join(
+                    ""
+                );
+        }
+
+
+        /* ==========================================
+           PAGE LINK
+        ========================================== */
+
+        function renderPageLink(
+            pageUrl,
+            label
+        ) {
+
+            const safeUrl =
+                validPageUrl(
+                    pageUrl
+                );
+
+
+            if (
+                !safeUrl
+            ) {
+                return "";
+            }
+
+
+            return `
+                <a
+                    class="source-page-link"
+                    href="${escapeHtml(safeUrl)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ${escapeHtml(label)}
+                </a>
+            `;
+        }
+
+
+        /* ==========================================
+           SOURCES
+        ========================================== */
+
+        function renderSources(
+            sources
+        ) {
+
+            if (
+                !Array.isArray(
+                    sources
+                )
+                ||
+                sources.length
+                === 0
+            ) {
+
+                sourcesEl.innerHTML =
+                    "";
+
+                return;
+            }
+
+
+            const items =
+                sources
+                .map(
+                    source => {
+
+                        const tableTitle =
+                            source.table_title
+                            ? `
+                                <div class="source-table">
+                                    ${
+                                        escapeHtml(
+                                            source.table_title
+                                        )
+                                    }
+                                </div>
+                            `
+                            : "";
+
+
+                        const pageLink =
+                            renderPageLink(
+                                source.page_url,
+                                "Open census page ↗"
+                            );
+
+
+                        return `
+
+                            <div class="source-item">
+
+                                <strong class="source-id">
+                                    [${escapeHtml(source.id)}]
+                                </strong>
+
+                                <div class="source-body">
+
+                                    <div class="source-meta">
+
+                                        2019 KPHC ·
+                                        Volume
+                                        ${escapeHtml(source.volume)}
+                                        · page
+                                        ${escapeHtml(source.page)}
+
+                                    </div>
+
+                                    ${tableTitle}
+
+                                    ${pageLink}
+
+                                </div>
+
+                            </div>
+
+                        `;
+                    }
+                )
+                .join(
+                    ""
+                );
+
+
+            sourcesEl.innerHTML = `
+
+                <section class="sources-card">
+
+                    <h2>
+                        Sources
+                    </h2>
+
+                    ${items}
+
+                </section>
+
+            `;
+        }
+
+
+        /* ==========================================
+           TABLE HELPERS
+        ========================================== */
+
+        function meaningfulEntries(
+            row
+        ) {
+
+            if (
+                !row
+                ||
+                typeof row
+                !== "object"
+            ) {
+                return [];
+            }
+
+
+            return Object.entries(
+                row
+            )
+            .filter(
+                entry => {
+
+                    const value =
+                        String(
+                            entry[1] == null
+                            ? ""
+                            : entry[1]
+                        )
+                        .trim();
+
+
+                    return (
+                        value
+                        &&
+                        ![
+                            "-",
+                            "—",
+                            "–"
+                        ].includes(
+                            value
+                        )
+                    );
+                }
+            );
+        }
+
+
+        /* ==========================================
+           STRUCTURED TABLE EVIDENCE
+        ========================================== */
+
+        function renderTableEvidence(
+            result,
+            index
+        ) {
+
+            const entries =
+                meaningfulEntries(
+                    result.row
+                );
+
+
+            const first =
+                entries.length
+                ? entries[0]
+                : null;
+
+
+            const rest =
+                first
+                ? entries.slice(
+                    1
+                )
+                : entries;
+
+
+            const area =
+                first
+                ? `
+                    <div class="table-area-wrapper">
+
+                        <span class="table-area-label">
+                            ${escapeHtml(first[0])}
+                        </span>
+
+                        <p class="table-area">
+                            ${escapeHtml(first[1])}
+                        </p>
+
+                    </div>
+                `
+                : "";
+
+
+            const facts =
+                rest
+                .map(
+                    entry => `
+
+                        <div class="fact">
+
+                            <span class="fact-label">
+                                ${escapeHtml(entry[0])}
+                            </span>
+
+                            <strong class="fact-value">
+                                ${escapeHtml(entry[1])}
+                            </strong>
+
+                        </div>
+
+                    `
+                )
+                .join(
+                    ""
+                );
+
+
+            const tableNumber =
+                result.table_number
+                ? `
+                    <span class="table-number">
+                        Table
+                        ${escapeHtml(result.table_number)}
+                    </span>
+                `
+                : "";
+
+
+            const pageLink =
+                renderPageLink(
+                    result.page_url,
+                    "View original page ↗"
+                );
+
+
+            return `
+
+                <article
+                    class="
+                        evidence-item
+                        table-evidence
+                    "
+                >
+
+                    <div class="evidence-meta">
+
+                        <strong>
+                            Evidence ${index + 1}
+                        </strong>
+
+                        <span>
+                            Volume
+                            ${escapeHtml(result.volume)}
+                            · page
+                            ${escapeHtml(result.page)}
+                        </span>
+
+                    </div>
+
+
+                    <div class="table-heading">
+
+                        ${tableNumber}
+
+                        <h3>
+                            ${
+                                escapeHtml(
+                                    result.table_title
+                                    ||
+                                    "Census table"
+                                )
+                            }
+                        </h3>
+
+                    </div>
+
+
+                    ${area}
+
+
+                    <div class="fact-grid">
+                        ${facts}
+                    </div>
+
+
+                    <div class="evidence-actions">
+                        ${pageLink}
+                    </div>
+
+                </article>
+
+            `;
+        }
+
+
+        /* ==========================================
+           NORMAL TEXT EVIDENCE
+        ========================================== */
+
+        function renderTextEvidence(
+            result,
+            index
+        ) {
+
+            const pageLink =
+                renderPageLink(
+                    result.page_url,
+                    "View original page ↗"
+                );
+
+
+            return `
+
+                <article class="evidence-item">
+
+                    <div class="evidence-meta">
+
+                        <strong>
+                            Evidence ${index + 1}
+                        </strong>
+
+                        <span>
+                            Volume
+                            ${escapeHtml(result.volume)}
+                            · page
+                            ${escapeHtml(result.page)}
+                        </span>
+
+                    </div>
+
+
+                    <p class="evidence-text">
+                        ${
+                            escapeHtml(
+                                result.text || ""
+                            )
+                        }
+                    </p>
+
+
+                    <div class="evidence-actions">
+                        ${pageLink}
+                    </div>
+
+                </article>
+
+            `;
+        }
+
+
+        /* ==========================================
+           EVIDENCE
+        ========================================== */
+
+        function renderEvidence(
+            results
+        ) {
+
+            if (
+                !Array.isArray(
+                    results
+                )
+            ) {
+
+                evidenceEl.innerHTML =
+                    "";
+
+                return;
+            }
+
+
+            evidenceEl.innerHTML =
+                results
+                .map(
+                    (
+                        result,
+                        index
+                    ) => {
+
+                        if (
+                            result.type
+                            === "table"
+                            &&
+                            result.row
+                        ) {
+
+                            return (
+                                renderTableEvidence(
+                                    result,
+                                    index
+                                )
+                            );
+                        }
+
+
+                        return (
+                            renderTextEvidence(
+                                result,
+                                index
+                            )
+                        );
+                    }
+                )
+                .join(
+                    ""
+                );
+        }
+
+
+        /* ==========================================
+           SEARCH
+        ========================================== */
+
+        form.addEventListener(
+            "submit",
+
+            async function (
+                event
+            ) {
+
+                event.preventDefault();
+
+
+                const query =
+                    queryInput
+                    .value
+                    .trim();
+
+
+                const volume =
+                    volumeInput.value;
+
+
+                if (
+                    !query
+                ) {
+                    return;
+                }
+
+
+                clearResults();
+
+
+                statusEl.textContent =
+                    (
+                        "Searching the census "
+                        + "and preparing a clear "
+                        + "explanation…"
+                    );
+
+
+                askButton.disabled =
+                    true;
+
+
+                askButton.textContent =
+                    "Working…";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/ask",
+                            {
+                                method:
+                                    "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify(
+                                        {
+                                            query:
+                                                query,
+
+                                            volume:
+                                                volume
+                                                || null,
+
+                                            top_k:
+                                                6
+                                        }
+                                    )
+                            }
+                        );
+
+
+                    let data;
+
+
+                    try {
+
+                        data =
+                            await response.json();
+
+                    }
+
+                    catch (
+                        error
+                    ) {
+
+                        throw new Error(
+                            "The server returned "
+                            + "an invalid response."
+                        );
+                    }
+
+
+                    if (
+                        !response.ok
+                    ) {
+
+                        throw new Error(
+                            data.error
+                            ||
+                            "Unable to answer "
+                            + "the question."
+                        );
+                    }
+
+
+                    renderAnswer(
+                        data.answer
+                        ||
+                        "No answer was returned."
+                    );
+
+
+                    renderSources(
+                        data.sources
+                        || []
+                    );
+
+
+                    renderEvidence(
+                        data.evidence
+                        || []
+                    );
+
+
+                    answerSection.hidden =
+                        false;
+
+
+                    statusEl.textContent =
+                        (
+                            "Answer based on "
+                            + "retrieved census "
+                            + "evidence."
+                        );
+
+                }
+
+                catch (
+                    error
+                ) {
+
+                    console.error(
+                        "Census search failed:",
+                        error
+                    );
+
+
+                    statusEl.textContent =
+                        (
+                            error.message
+                            ||
+                            "Search failed."
+                        );
+                }
+
+                finally {
+
+                    askButton.disabled =
+                        false;
+
+
+                    askButton.textContent =
+                        "Ask Census";
+                }
+            }
+        );
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
