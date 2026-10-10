@@ -7,7 +7,6 @@ def test_all_four_main_2019_census_volumes_are_configured():
 
 def test_source_filenames_are_unique_and_indexed():
     filenames = [source["filename"] for source in CENSUS_SOURCES]
-
     assert len(filenames) == len(set(filenames))
     assert set(SOURCE_BY_FILENAME) == set(filenames)
 

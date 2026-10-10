@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 from flask import (
     Flask,
     abort,
@@ -16,72 +15,40 @@ from flask import (
     send_from_directory,
     url_for,
 )
-
-from llm import (
-    CensusLLM,
-    LLMServiceError,
-)
-
-from search_engine import (
-    CensusSearchEngine,
-)
+from llm import CensusLLM, LLMServiceError
+from search_engine import CensusSearchEngine
 
 BASE_DIR = Path(__file__).resolve().parent
-
-
 DATA_DIR = BASE_DIR / "data"
-
-
 INDEX_DIR = BASE_DIR / "index"
-
 
 # ---------------------------------------------------------
 # LOCAL BGE PATH
 # ---------------------------------------------------------
-
 configured_model_path = os.getenv("EMBEDDING_MODEL_PATH")
 
-
 if configured_model_path:
-
     MODEL_DIR = Path(configured_model_path)
 
     if not MODEL_DIR.is_absolute():
-
         MODEL_DIR = BASE_DIR / MODEL_DIR
 
     MODEL_DIR = MODEL_DIR.resolve()
-
 else:
-
     MODEL_DIR = BASE_DIR / "models" / "bge-small-en-v1.5"
-
 
 # ---------------------------------------------------------
 # APP
 # ---------------------------------------------------------
-
 app = Flask(__name__)
-
-
-engine = CensusSearchEngine(
-    index_dir=INDEX_DIR,
-    model_path=MODEL_DIR,
-)
-
-
+engine = CensusSearchEngine(index_dir=INDEX_DIR, model_path=MODEL_DIR)
 llm = CensusLLM()
 
 
 # ---------------------------------------------------------
 # PAGE URL HELPERS
 # ---------------------------------------------------------
-
-
-def source_page_url(
-    source,
-    page,
-):
+def source_page_url(source, page):
     """
     Build a URL that opens a local census PDF
     at the exact page.
@@ -99,24 +66,15 @@ def source_page_url(
 
     try:
         page_number = int(page)
-
-    except (
-        TypeError,
-        ValueError,
-    ):
+    except (TypeError, ValueError):
         return None
 
-    base_url = url_for(
-        "census_pdf",
-        filename=source,
-    )
+    base_url = url_for("census_pdf", filename=source)
 
     return f"{base_url}" f"#page={page_number}"
 
 
-def add_page_urls(
-    records,
-):
+def add_page_urls(records):
     """
     Add page_url to retrieval results,
     Qwen sources and evidence records.
@@ -125,13 +83,8 @@ def add_page_urls(
     enriched = []
 
     for record in records or []:
-
         item = dict(record)
-
-        page_url = source_page_url(
-            item.get("source"),
-            item.get("page"),
-        )
+        page_url = source_page_url(item.get("source"), item.get("page"))
 
         if page_url:
             item["page_url"] = page_url
@@ -144,56 +97,26 @@ def add_page_urls(
 # ---------------------------------------------------------
 # REQUEST PARAMETERS
 # ---------------------------------------------------------
-
-
 def get_request_parameters():
-
     payload = request.get_json(silent=True) or {}
-
     query = (payload.get("query") or request.args.get("q") or "").strip()
-
     volume = (payload.get("volume") or request.args.get("volume") or "").strip() or None
 
     try:
-
         top_k = int(payload.get("top_k") or request.args.get("top_k") or 6)
-
-    except (
-        TypeError,
-        ValueError,
-    ):
-
+    except (TypeError, ValueError):
         top_k = 6
 
-    top_k = max(
-        1,
-        min(
-            top_k,
-            20,
-        ),
-    )
+    top_k = max(1, min(top_k, 20))
 
-    return (
-        query,
-        volume,
-        top_k,
-    )
+    return (query, volume, top_k)
 
 
-def validate_search_request(
-    query,
-    volume,
-):
-
+def validate_search_request(query, volume):
     if not query:
-
-        return (
-            jsonify({"error": ("Please provide " "a search query.")}),
-            400,
-        )
+        return (jsonify({"error": ("Please provide " "a search query.")}), 400)
 
     if not engine.is_ready():
-
         return (
             jsonify(
                 {
@@ -209,7 +132,6 @@ def validate_search_request(
         )
 
     if not engine.model_path.exists():
-
         return (
             jsonify({"error": ("The local BGE " "embedding model is " "missing.")}),
             503,
@@ -218,7 +140,6 @@ def validate_search_request(
     valid_volumes = {item["volume"] for item in engine.volumes}
 
     if volume and volume not in valid_volumes:
-
         return (
             jsonify({"error": ("Unknown or " "unindexed volume: " f"{volume}")}),
             400,
@@ -230,27 +151,18 @@ def validate_search_request(
 # ---------------------------------------------------------
 # MAIN PAGE
 # ---------------------------------------------------------
-
-
 @app.get("/")
 def home():
-
     return render_template(
-        "index.html",
-        indexed=engine.is_ready(),
-        volumes=engine.volumes,
+        "index.html", indexed=engine.is_ready(), volumes=engine.volumes
     )
 
 
 # ---------------------------------------------------------
 # SERVE LOCAL CENSUS PDFs
 # ---------------------------------------------------------
-
-
 @app.get("/census-pdf/<path:filename>")
-def census_pdf(
-    filename,
-):
+def census_pdf(filename):
     """
     Serve only PDFs that belong to the
     currently indexed census sources.
@@ -263,12 +175,7 @@ def census_pdf(
     if safe_name != filename:
         abort(404)
 
-    allowed_sources = set(
-        engine.metadata.get(
-            "sources",
-            [],
-        )
-    )
+    allowed_sources = set(engine.metadata.get("sources", []))
 
     if safe_name not in allowed_sources:
         abort(404)
@@ -290,11 +197,8 @@ def census_pdf(
 # ---------------------------------------------------------
 # HEALTH
 # ---------------------------------------------------------
-
-
 @app.get("/health")
 def health():
-
     return jsonify(
         {
             "ok": True,
@@ -313,95 +217,42 @@ def health():
 # ---------------------------------------------------------
 # VOLUMES
 # ---------------------------------------------------------
-
-
 @app.get("/api/volumes")
 def api_volumes():
-
     return jsonify({"volumes": engine.volumes})
 
 
 # ---------------------------------------------------------
 # SEMANTIC SEARCH
 # ---------------------------------------------------------
-
-
-@app.route(
-    "/api/search",
-    methods=[
-        "GET",
-        "POST",
-    ],
-)
+@app.route("/api/search", methods=["GET", "POST"])
 def api_search():
-
-    (
-        query,
-        volume,
-        top_k,
-    ) = get_request_parameters()
-
-    error = validate_search_request(
-        query,
-        volume,
-    )
+    query, volume, top_k = get_request_parameters()
+    error = validate_search_request(query, volume)
 
     if error:
         return error
 
-    results = engine.search(
-        query=query,
-        top_k=top_k,
-        volume=volume,
-    )
-
+    results = engine.search(query=query, top_k=top_k, volume=volume)
     results = add_page_urls(results)
 
-    return jsonify(
-        {
-            "query": query,
-            "volume": volume or "all",
-            "results": results,
-        }
-    )
+    return jsonify({"query": query, "volume": volume or "all", "results": results})
 
 
 # ---------------------------------------------------------
 # RAG ANSWER
 # ---------------------------------------------------------
-
-
-@app.route(
-    "/api/ask",
-    methods=[
-        "GET",
-        "POST",
-    ],
-)
+@app.route("/api/ask", methods=["GET", "POST"])
 def api_ask():
-
-    (
-        query,
-        volume,
-        top_k,
-    ) = get_request_parameters()
-
-    error = validate_search_request(
-        query,
-        volume,
-    )
+    query, volume, top_k = get_request_parameters()
+    error = validate_search_request(query, volume)
 
     if error:
         return error
 
-    results = engine.search(
-        query=query,
-        top_k=top_k,
-        volume=volume,
-    )
+    results = engine.search(query=query, top_k=top_k, volume=volume)
 
     if not results:
-
         return jsonify(
             {
                 "query": query,
@@ -418,27 +269,11 @@ def api_ask():
         )
 
     try:
-
-        generated = llm.answer(
-            question=query,
-            search_results=results,
-            max_chunks=5,
-        )
-
+        generated = llm.answer(question=query, search_results=results, max_chunks=5)
     except LLMServiceError as exc:
-
-        return (
-            jsonify(
-                {
-                    "error": str(exc),
-                    "results": add_page_urls(results),
-                }
-            ),
-            503,
-        )
+        return (jsonify({"error": str(exc), "results": add_page_urls(results)}), 503)
 
     sources = add_page_urls(generated["sources"])
-
     evidence = add_page_urls(generated["evidence"])
 
     return jsonify(
@@ -455,25 +290,9 @@ def api_ask():
 # ---------------------------------------------------------
 # DEV SERVER
 # ---------------------------------------------------------
-
 if __name__ == "__main__":
-
     app.run(
-        host=os.getenv(
-            "HOST",
-            "127.0.0.1",
-        ),
-        port=int(
-            os.getenv(
-                "PORT",
-                "5000",
-            )
-        ),
-        debug=(
-            os.getenv(
-                "FLASK_DEBUG",
-                "1",
-            )
-            == "1"
-        ),
+        host=os.getenv("HOST", "127.0.0.1"),
+        port=int(os.getenv("PORT", "5000")),
+        debug=(os.getenv("FLASK_DEBUG", "1") == "1"),
     )

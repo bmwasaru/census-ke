@@ -78,9 +78,7 @@ def main():
         help="Download only one census volume.",
     )
     parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Redownload files that already exist.",
+        "--force", action="store_true", help="Redownload files that already exist."
     )
     parser.add_argument(
         "--list",
@@ -88,7 +86,6 @@ def main():
         help="List the configured census volumes without downloading.",
     )
     args = parser.parse_args()
-
     selected = [
         source
         for source in CENSUS_SOURCES
@@ -104,7 +101,6 @@ def main():
         return
 
     successes = sum(download_source(source, force=args.force) for source in selected)
-
     print()
     print(f"Downloaded/available: {successes}/{len(selected)} volume(s).")
 

@@ -5,24 +5,18 @@ import faiss
 import numpy as np
 import pytest
 
-from search_engine import (
-    CensusSearchEngine,
-)
+from search_engine import CensusSearchEngine
 
 
 @pytest.fixture
-def indexed_engine(
-    tmp_path,
-):
+def indexed_engine(tmp_path):
     """
     Create a tiny real FAISS index without
     loading BGE.
     """
 
     index_dir = tmp_path / "index"
-
     index_dir.mkdir()
-
     chunks = [
         {
             "chunk_id": 0,
@@ -46,11 +40,7 @@ def indexed_engine(
             "source": ("2019-kphc-volume-4.pdf"),
             "table_number": "2.22",
             "table_title": ("Table 2.22: Distribution " "of Households Growing Crops"),
-            "columns": [
-                "Area",
-                "Households Farming",
-                "Maize",
-            ],
+            "columns": ["Area", "Households Farming", "Maize"],
             "row": {
                 "Area": "MOMBASA",
                 "Households Farming": "12,497",
@@ -64,221 +54,83 @@ def indexed_engine(
             ),
         },
     ]
-
-    (index_dir / "chunks.json").write_text(
-        json.dumps(chunks),
-        encoding="utf-8",
-    )
-
+    (index_dir / "chunks.json").write_text(json.dumps(chunks), encoding="utf-8")
     metadata = {
         "volumes": [
-            {
-                "volume": "I",
-                "title": "Population",
-            },
-            {
-                "volume": "IV",
-                "title": ("Socio-Economic " "Characteristics"),
-            },
+            {"volume": "I", "title": "Population"},
+            {"volume": "IV", "title": ("Socio-Economic " "Characteristics")},
         ],
-        "sources": [
-            "2019-kphc-volume-1.pdf",
-            "2019-kphc-volume-4.pdf",
-        ],
+        "sources": ["2019-kphc-volume-1.pdf", "2019-kphc-volume-4.pdf"],
     }
-
-    (index_dir / "metadata.json").write_text(
-        json.dumps(metadata),
-        encoding="utf-8",
-    )
-
-    vectors = np.array(
-        [
-            [
-                1.0,
-                0.0,
-            ],
-            [
-                0.0,
-                1.0,
-            ],
-        ],
-        dtype=np.float32,
-    )
-
+    (index_dir / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
+    vectors = np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32)
     index = faiss.IndexFlatIP(2)
-
     index.add(vectors)
-
-    faiss.write_index(
-        index,
-        str(index_dir / "census.faiss"),
-    )
-
+    faiss.write_index(index, str(index_dir / "census.faiss"))
     model_path = tmp_path / "model"
-
     model_path.mkdir()
 
-    return CensusSearchEngine(
-        index_dir=index_dir,
-        model_path=model_path,
-    )
+    return CensusSearchEngine(index_dir=index_dir, model_path=model_path)
 
 
-def test_engine_loads_index(
-    indexed_engine,
-):
-
+def test_engine_loads_index(indexed_engine):
     assert indexed_engine.is_ready() is True
-
     assert indexed_engine.chunk_count == 2
 
 
-def test_search_returns_table_structure(
-    indexed_engine,
-    monkeypatch,
-):
-
+def test_search_returns_table_structure(indexed_engine, monkeypatch):
     monkeypatch.setattr(
         indexed_engine,
         "_encode_query",
-        lambda query: np.array(
-            [
-                [
-                    0.0,
-                    1.0,
-                ]
-            ],
-            dtype=np.float32,
-        ),
+        lambda query: np.array([[0.0, 1.0]], dtype=np.float32),
     )
-
-    results = indexed_engine.search(
-        "maize in Mombasa",
-        top_k=1,
-    )
-
+    results = indexed_engine.search("maize in Mombasa", top_k=1)
     assert len(results) == 1
-
     result = results[0]
-
     assert result["type"] == "table"
-
     assert result["page"] == 215
-
     assert result["table_number"] == "2.22"
-
     assert result["row"]["Maize"] == "5,681"
 
 
-def test_search_returns_text_result(
-    indexed_engine,
-    monkeypatch,
-):
-
+def test_search_returns_text_result(indexed_engine, monkeypatch):
     monkeypatch.setattr(
         indexed_engine,
         "_encode_query",
-        lambda query: np.array(
-            [
-                [
-                    1.0,
-                    0.0,
-                ]
-            ],
-            dtype=np.float32,
-        ),
+        lambda query: np.array([[1.0, 0.0]], dtype=np.float32),
     )
-
-    results = indexed_engine.search(
-        "Mombasa population",
-        top_k=1,
-    )
-
+    results = indexed_engine.search("Mombasa population", top_k=1)
     assert results[0]["type"] == "text"
-
     assert results[0]["page"] == 10
 
 
-def test_volume_filter(
-    indexed_engine,
-    monkeypatch,
-):
-
+def test_volume_filter(indexed_engine, monkeypatch):
     monkeypatch.setattr(
         indexed_engine,
         "_encode_query",
-        lambda query: np.array(
-            [
-                [
-                    0.0,
-                    1.0,
-                ]
-            ],
-            dtype=np.float32,
-        ),
+        lambda query: np.array([[0.0, 1.0]], dtype=np.float32),
     )
-
-    results = indexed_engine.search(
-        "population",
-        top_k=1,
-        volume="I",
-    )
-
+    results = indexed_engine.search("population", top_k=1, volume="I")
     assert len(results) == 1
-
     assert results[0]["volume"] == "I"
 
 
-def test_volumes_property(
-    indexed_engine,
-):
-
+def test_volumes_property(indexed_engine):
     volumes = indexed_engine.volumes
-
     assert len(volumes) == 2
-
     assert volumes[0]["volume"] == "I"
 
 
-def test_inconsistent_index_raises(
-    tmp_path,
-):
-
+def test_inconsistent_index_raises(tmp_path):
     index_dir = tmp_path / "bad-index"
-
     index_dir.mkdir()
-
     (index_dir / "chunks.json").write_text(
-        json.dumps([{"chunk_id": 0}]),
-        encoding="utf-8",
+        json.dumps([{"chunk_id": 0}]), encoding="utf-8"
     )
-
-    vectors = np.array(
-        [
-            [
-                1.0,
-                0.0,
-            ],
-            [
-                0.0,
-                1.0,
-            ],
-        ],
-        dtype=np.float32,
-    )
-
+    vectors = np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32)
     index = faiss.IndexFlatIP(2)
-
     index.add(vectors)
-
-    faiss.write_index(
-        index,
-        str(index_dir / "census.faiss"),
-    )
+    faiss.write_index(index, str(index_dir / "census.faiss"))
 
     with pytest.raises(RuntimeError):
-        CensusSearchEngine(
-            index_dir=index_dir,
-            model_path=tmp_path / "model",
-        )
+        CensusSearchEngine(index_dir=index_dir, model_path=tmp_path / "model")

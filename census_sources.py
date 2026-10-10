@@ -28,5 +28,4 @@ CENSUS_SOURCES = [
         "fallback_url": "https://www.knbs.or.ke/wp-content/uploads/2023/09/2019-Kenya-population-and-Housing-Census-Volume-4-Distribution-of-Population-by-Socio-Economic-Characteristics.pdf",
     },
 ]
-
 SOURCE_BY_FILENAME = {item["filename"]: item for item in CENSUS_SOURCES}

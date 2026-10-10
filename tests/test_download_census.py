@@ -23,7 +23,6 @@ def test_download_source_skips_existing_large_file(tmp_path, monkeypatch):
         raise AssertionError("download should not have been called")
 
     monkeypatch.setattr(download_census, "download", should_not_download)
-
     assert download_census.download_source(source) is True
 
 
@@ -39,7 +38,6 @@ def test_download_source_falls_back_to_second_url(tmp_path, monkeypatch):
         destination.write_bytes(b"p" * 60_000)
 
     monkeypatch.setattr(download_census, "download", fake_download)
-
     assert download_census.download_source(source) is True
     assert calls == [source["repository_url"], source["fallback_url"]]
     assert (tmp_path / source["filename"]).stat().st_size == 60_000
@@ -53,6 +51,5 @@ def test_download_source_returns_false_if_all_urls_fail(tmp_path, monkeypatch):
         "download",
         lambda *args, **kwargs: (_ for _ in ()).throw(URLError("offline")),
     )
-
     assert download_census.download_source(source) is False
     assert not (tmp_path / source["filename"]).exists()
