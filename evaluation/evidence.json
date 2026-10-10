@@ -1,0 +1,467 @@
+{
+  "kenya_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "kenya_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Kenya",
+          "Total population": "47,564,296"
+        },
+        "text": "National/County: Kenya. Total population: 47,564,296"
+      }
+    ]
+  },
+  "mombasa_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "mombasa_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Mombasa",
+          "Total population": "1,208,333"
+        },
+        "text": "National/County: Mombasa. Total population: 1,208,333"
+      }
+    ]
+  },
+  "nairobi_city_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "nairobi_city_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Nairobi City",
+          "Total population": "4,397,073"
+        },
+        "text": "National/County: Nairobi City. Total population: 4,397,073"
+      }
+    ]
+  },
+  "kisumu_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "kisumu_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Kisumu",
+          "Total population": "1,155,574"
+        },
+        "text": "National/County: Kisumu. Total population: 1,155,574"
+      }
+    ]
+  },
+  "kiambu_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "kiambu_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Kiambu",
+          "Total population": "2,417,735"
+        },
+        "text": "National/County: Kiambu. Total population: 2,417,735"
+      }
+    ]
+  },
+  "nakuru_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "nakuru_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Nakuru",
+          "Total population": "2,162,202"
+        },
+        "text": "National/County: Nakuru. Total population: 2,162,202"
+      }
+    ]
+  },
+  "kilifi_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "kilifi_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Kilifi",
+          "Total population": "1,453,787"
+        },
+        "text": "National/County: Kilifi. Total population: 1,453,787"
+      }
+    ]
+  },
+  "lamu_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "lamu_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Lamu",
+          "Total population": "143,920"
+        },
+        "text": "National/County: Lamu. Total population: 143,920"
+      }
+    ]
+  },
+  "turkana_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "turkana_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Turkana",
+          "Total population": "926,976"
+        },
+        "text": "National/County: Turkana. Total population: 926,976"
+      }
+    ]
+  },
+  "kakamega_population": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "kakamega_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Kakamega",
+          "Total population": "1,867,579"
+        },
+        "text": "National/County: Kakamega. Total population: 1,867,579"
+      }
+    ]
+  },
+  "mombasa_sex": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "mombasa_sex",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "County": "Mombasa",
+          "Male": "610,257",
+          "Female": "598,046",
+          "Intersex": "30",
+          "Total": "1,208,333"
+        },
+        "text": "County: Mombasa. Male: 610,257. Female: 598,046. Intersex: 30. Total: 1,208,333"
+      }
+    ]
+  },
+  "mombasa_households": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 19,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "mombasa_households",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 19,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.3: Population, Number of Households and Average Household Size by County",
+        "row": {
+          "County": "Mombasa",
+          "Population excluding special population": "1,190,987",
+          "Number of households": "378,422",
+          "Average household size": "3.1"
+        },
+        "text": "County: Mombasa. Population excluding special population: 1,190,987. Number of households: 378,422. Average household size: 3.1"
+      }
+    ]
+  },
+  "nairobi_households": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 19,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "nairobi_households",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 19,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.3: Population, Number of Households and Average Household Size by County",
+        "row": {
+          "County": "Nairobi City",
+          "Population excluding special population": "4,337,080",
+          "Number of households": "1,506,888",
+          "Average household size": "2.9"
+        },
+        "text": "County: Nairobi City. Population excluding special population: 4,337,080. Number of households: 1,506,888. Average household size: 2.9"
+      }
+    ]
+  },
+  "population_comparison": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Two normalized county rows from Table 2.2; comparison direction needs human review."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "mombasa_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Mombasa",
+          "Total population": "1,208,333"
+        },
+        "text": "National/County: Mombasa. Total population: 1,208,333"
+      },
+      {
+        "rank": 2,
+        "score": 1.0,
+        "chunk_id": "nairobi_city_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Nairobi City",
+          "Total population": "4,397,073"
+        },
+        "text": "National/County: Nairobi City. Total population: 4,397,073"
+      }
+    ]
+  },
+  "crop_regression": {
+    "provenance": {
+      "kind": "synthetic_regression",
+      "source": "tests/test_llm.py regression fixture",
+      "pdf_page": null,
+      "note": "Synthetic regression data; not a verified census statistic."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "crop_regression",
+        "year": 2019,
+        "type": "table",
+        "volume": "IV",
+        "volume_title": "Synthetic crop test",
+        "page": 215,
+        "source": "synthetic-crops",
+        "table_title": "Synthetic regression: Households Growing Crops",
+        "row": {
+          "County": "MOMBASA",
+          "Households Farming": "12,497",
+          "Maize": "5,681",
+          "Beans": "2,849"
+        },
+        "text": "County: MOMBASA. Households Farming: 12,497. Maize: 5,681. Beans: 2,849"
+      }
+    ]
+  },
+  "empty": {
+    "provenance": {
+      "kind": "synthetic_regression",
+      "note": "No retrieved evidence; validates the application abstention path, not model inference."
+    },
+    "results": []
+  },
+  "wrong_county": {
+    "provenance": {
+      "kind": "verified_pdf",
+      "source": "2019-kphc-volume-1.pdf",
+      "pdf_page": 17,
+      "note": "Manually checked against PDF table; row normalized for isolated generation evaluation."
+    },
+    "results": [
+      {
+        "rank": 1,
+        "score": 1.0,
+        "chunk_id": "lamu_population",
+        "year": 2019,
+        "type": "table",
+        "volume": "I",
+        "volume_title": "Population by County and Sub-County",
+        "page": 17,
+        "source": "2019-kphc-volume-1.pdf",
+        "table_title": "Table 2.2: Distribution of Population by Sex and County",
+        "row": {
+          "National/County": "Lamu",
+          "Total population": "143,920"
+        },
+        "text": "National/County: Lamu. Total population: 143,920"
+      }
+    ]
+  }
+}

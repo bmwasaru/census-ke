@@ -793,33 +793,7 @@ evaluation/questions.json
 
 Questions should be manually verified against the original census documents.
 
-Example:
-
-```json
-[
-  {
-    "id": "mombasa_population",
-    "question": "What was the population of Mombasa County?",
-    "answerable": true,
-    "expected_sources": [
-      {
-        "volume": "I",
-        "pages": [10, 11, 12]
-      }
-    ],
-    "expected_values": [
-      "1,208,333"
-    ]
-  },
-  {
-    "id": "future_population",
-    "question": "What was the population of Nairobi in 2024?",
-    "answerable": false,
-    "expected_sources": [],
-    "expected_values": []
-  }
-]
-```
+The starter benchmark now contains 31 cases with verified population and household labels plus clearly marked synthetic regressions. It supports retrieval, fixed-evidence generation, and full-pipeline evaluation. See [the evaluation guide](evaluation/README.md) for the dataset schema, commands, report fields, and automatic-grading limitations.
 
 A useful evaluation set should include a mixture of:
 
@@ -902,7 +876,7 @@ python -m evaluation.evaluate
 
 Using module execution is recommended so imports resolve from the project root.
 
-Results can be saved to:
+The default run saves a structured report with metadata, summaries, and per-question evidence to:
 
 ```text
 evaluation/results.json

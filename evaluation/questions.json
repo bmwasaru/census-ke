@@ -1,24 +1,647 @@
 [
   {
-    "id": "mombasa_population",
-    "question": "What was the population of Mombasa County?",
+    "id": "kenya_population",
+    "question": "What was the total population of Kenya in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
     "answerable": true,
     "expected_sources": [
       {
         "volume": "I",
-        "pages": [10, 11, 12]
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "47,564,296"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "kenya_population"
+  },
+  {
+    "id": "mombasa_population",
+    "question": "What was the total population of Mombasa County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
       }
     ],
     "expected_values": [
       "1,208,333"
-    ]
+    ],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population"
   },
-
+  {
+    "id": "nairobi_city_population",
+    "question": "What was the total population of Nairobi City County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "4,397,073"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "nairobi_city_population"
+  },
+  {
+    "id": "kisumu_population",
+    "question": "What was the total population of Kisumu County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,155,574"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "kisumu_population"
+  },
+  {
+    "id": "kiambu_population",
+    "question": "What was the total population of Kiambu County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "2,417,735"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "kiambu_population"
+  },
+  {
+    "id": "nakuru_population",
+    "question": "What was the total population of Nakuru County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "2,162,202"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "nakuru_population"
+  },
+  {
+    "id": "kilifi_population",
+    "question": "What was the total population of Kilifi County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,453,787"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "kilifi_population"
+  },
+  {
+    "id": "lamu_population",
+    "question": "What was the total population of Lamu County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "143,920"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "lamu_population"
+  },
+  {
+    "id": "turkana_population",
+    "question": "What was the total population of Turkana County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "926,976"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "turkana_population"
+  },
+  {
+    "id": "kakamega_population",
+    "question": "What was the total population of Kakamega County in the 2019 census?",
+    "category": "fact_lookup",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,867,579"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "kakamega_population"
+  },
+  {
+    "id": "mombasa_population_paraphrase",
+    "question": "How many people lived in Mombasa County according to the 2019 census?",
+    "category": "paraphrase",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,208,333"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population"
+  },
+  {
+    "id": "mombasa_population_swahili",
+    "question": "Kaunti ya Mombasa ilikuwa na watu wangapi katika sensa ya 2019?",
+    "category": "swahili",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,208,333"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population"
+  },
+  {
+    "id": "mombasa_population_filtered",
+    "question": "What was the total population of Mombasa County in 2019?",
+    "category": "volume_filter",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,208,333"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population",
+    "volume": "I"
+  },
+  {
+    "id": "mombasa_male",
+    "question": "How many males were counted in Mombasa County in 2019?",
+    "category": "column_selection",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "610,257"
+    ],
+    "forbidden_values": [
+      "598,046",
+      "1,208,333"
+    ],
+    "evidence_id": "mombasa_sex"
+  },
+  {
+    "id": "mombasa_female",
+    "question": "How many females were counted in Mombasa County in 2019?",
+    "category": "column_selection",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "598,046"
+    ],
+    "forbidden_values": [
+      "610,257",
+      "1,208,333"
+    ],
+    "evidence_id": "mombasa_sex"
+  },
+  {
+    "id": "mombasa_household_count",
+    "question": "How many households were recorded in Mombasa County in the 2019 census?",
+    "category": "households",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          19
+        ]
+      }
+    ],
+    "expected_values": [
+      "378,422"
+    ],
+    "forbidden_values": [
+      "1,190,987"
+    ],
+    "evidence_id": "mombasa_households"
+  },
+  {
+    "id": "mombasa_household_size",
+    "question": "What was the average household size in Mombasa County in 2019?",
+    "category": "decimal",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          19
+        ]
+      }
+    ],
+    "expected_values": [
+      "3.1"
+    ],
+    "forbidden_values": [
+      "378,422",
+      "1,190,987"
+    ],
+    "evidence_id": "mombasa_households"
+  },
+  {
+    "id": "nairobi_household_count",
+    "question": "How many households were recorded in Nairobi City County in 2019?",
+    "category": "households",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          19
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,506,888"
+    ],
+    "forbidden_values": [
+      "4,337,080"
+    ],
+    "evidence_id": "nairobi_households"
+  },
+  {
+    "id": "nairobi_household_size",
+    "question": "What was the average household size in Nairobi City County in 2019?",
+    "category": "decimal",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          19
+        ]
+      }
+    ],
+    "expected_values": [
+      "2.9"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "nairobi_households"
+  },
+  {
+    "id": "mombasa_household_population",
+    "question": "What was the Mombasa population excluding special populations in Table 2.3?",
+    "category": "population_scope",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          19
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,190,987"
+    ],
+    "forbidden_values": [
+      "1,208,333"
+    ],
+    "evidence_id": "mombasa_households"
+  },
+  {
+    "id": "population_comparison",
+    "question": "Which had more people in 2019, Mombasa County or Nairobi City County? Give both totals.",
+    "category": "comparison",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [
+      {
+        "volume": "I",
+        "pages": [
+          17
+        ]
+      }
+    ],
+    "expected_values": [
+      "1,208,333",
+      "4,397,073"
+    ],
+    "forbidden_values": [],
+    "evidence_id": "population_comparison"
+  },
   {
     "id": "future_population",
-    "question": "What was the population of Nairobi in 2024?",
+    "question": "What was the population of Nairobi City County in 2024?",
+    "category": "unsupported_year",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
     "answerable": false,
     "expected_sources": [],
-    "expected_values": []
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "nairobi_city_population"
+  },
+  {
+    "id": "current_population",
+    "question": "What is the population of Mombasa County in 2026?",
+    "category": "unsupported_year",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population"
+  },
+  {
+    "id": "forecast_population",
+    "question": "What will the population of Mombasa County be in 2030?",
+    "category": "forecast",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population"
+  },
+  {
+    "id": "population_cause",
+    "question": "Why did the population of Mombasa County grow?",
+    "category": "unsupported_causality",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population"
+  },
+  {
+    "id": "population_policy",
+    "question": "What policy should Mombasa County adopt based on its population?",
+    "category": "unsupported_policy",
+    "suites": [
+      "retrieval",
+      "generation"
+    ],
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "mombasa_population"
+  },
+  {
+    "id": "crop_maize_column",
+    "question": "How many Mombasa households grow maize?",
+    "category": "crop_column_regression",
+    "suites": [
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [],
+    "expected_values": [
+      "5,681"
+    ],
+    "forbidden_values": [
+      "12,497",
+      "2,849"
+    ],
+    "evidence_id": "crop_regression"
+  },
+  {
+    "id": "crop_beans_column",
+    "question": "How many Mombasa households grow beans?",
+    "category": "crop_column_regression",
+    "suites": [
+      "generation"
+    ],
+    "answerable": true,
+    "expected_sources": [],
+    "expected_values": [
+      "2,849"
+    ],
+    "forbidden_values": [
+      "12,497",
+      "5,681"
+    ],
+    "evidence_id": "crop_regression"
+  },
+  {
+    "id": "crop_missing_wheat",
+    "question": "How many Mombasa households grow wheat?",
+    "category": "missing_column_regression",
+    "suites": [
+      "generation"
+    ],
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "crop_regression"
+  },
+  {
+    "id": "empty_evidence",
+    "question": "How many people lived in Mombasa County?",
+    "category": "empty_evidence",
+    "suites": [
+      "generation"
+    ],
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "empty"
+  },
+  {
+    "id": "wrong_county_evidence",
+    "question": "What was the population of Mombasa County in 2019?",
+    "category": "wrong_entity",
+    "suites": [
+      "generation"
+    ],
+    "answerable": false,
+    "expected_sources": [],
+    "expected_values": [],
+    "forbidden_values": [],
+    "evidence_id": "wrong_county"
   }
 ]
